@@ -71,8 +71,13 @@ echo "==========================================================================
 
 echo "==================  Decompressing the traces into ./traces =================="
 
-wget https://storage.googleapis.com/traces_virtual_memory/traces_victima
+if [ ! -f traces_victima ]; then
+  wget https://storage.googleapis.com/traces_virtual_memory/traces_victima
+fi
+
+if [ ! -d traces ]; then
 tar -xzf traces_victima
+fi
 
 echo "====================================================================================="
 

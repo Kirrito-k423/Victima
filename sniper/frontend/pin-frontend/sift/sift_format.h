@@ -1,1 +1,1 @@
-/app/sniper/frontend/pin-frontend/../../sift/sift_format.h
+/root/codes/Victima/sniper/frontend/pin-frontend/../../sift/sift_format.h

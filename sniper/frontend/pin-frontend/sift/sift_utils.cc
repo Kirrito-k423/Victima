@@ -1,1 +1,1 @@
-/app/sniper/frontend/pin-frontend/../../sift/sift_utils.cc
+/root/codes/Victima/sniper/frontend/pin-frontend/../../sift/sift_utils.cc

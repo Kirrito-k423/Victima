@@ -1,1 +1,1 @@
-/app/sniper/sift/recorder/../../sift/siftdump.cc
+/root/codes/Victima/sniper/sift/recorder/../../sift/siftdump.cc

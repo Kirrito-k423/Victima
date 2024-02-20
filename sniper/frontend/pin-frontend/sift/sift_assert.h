@@ -1,1 +1,1 @@
-/app/sniper/frontend/pin-frontend/../../sift/sift_assert.h
+/root/codes/Victima/sniper/frontend/pin-frontend/../../sift/sift_assert.h
