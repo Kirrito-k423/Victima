@@ -18,7 +18,7 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
          Byte data_buf[getCacheBlockSize()];
          SubsecondTime dram_latency;
          HitWhere::where_t hit_where;
-         boost::tie(dram_latency, hit_where) = getDataFromDram(address, shmem_msg->getRequester(), data_buf, msg_time, shmem_msg->getPerf(),shmem_msg->getBlockType());
+         boost::tie(dram_latency, hit_where) = getDataFromDram(address, shmem_msg->getRequester(), data_buf, msg_time, shmem_msg->getPerf(),shmem_msg->getBlockType() == CacheBlockInfo::block_type_t::PAGE_TABLE);
 
          getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
 
@@ -39,7 +39,7 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
 
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_WRITE_REQ:
       {
-         putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time, shmem_msg->getBlockType());
+         putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time, shmem_msg->getBlockType() == CacheBlockInfo::block_type_t::PAGE_TABLE);
 
          // DRAM latency is ignored on write
 
