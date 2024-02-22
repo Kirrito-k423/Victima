@@ -790,9 +790,9 @@ CacheCntlr::processMemOpFromCore(
       }
 
       // Call Prefetch on next-level caches (but not for atomic instructions as that causes a locking mess)
-      if (lock_signal != Core::LOCK && modeled)
+      if (lock_signal != Core::LOCK && modeled && m_master->m_prefetcher)
       {
-         //std::cout << "Let's prefetch\n";
+         // std::cout << "Let's prefetch\n";
          Prefetch(eip, t_start);
       }
    }
