@@ -2,3 +2,4 @@
 *.o
 *.pyc
 *.a
+sniper/lib/sniper
