@@ -305,10 +305,10 @@ CacheCntlr::CacheCntlr(MemComponent::component_t mem_component,
       for(int i = 0; i < ShmemPerf::NUM_SHMEM_TIMES; ++i)
       {
          ShmemPerf::shmem_times_type_t reason = ShmemPerf::shmem_times_type_t(i);
-         registerStatsMetric(name, core_id, String("uncore-time-")+ShmemReasonString(reason), &m_shmem_perf_global->getComponent(reason));
+         registerStatsMetric("LLC", core_id, String("uncore-time-")+ShmemReasonString(reason), &m_shmem_perf_global->getComponent(reason));
       }
-      registerStatsMetric(name, core_id, "uncore-totaltime", &m_shmem_perf_totaltime);
-      registerStatsMetric(name, core_id, "uncore-requests", &m_shmem_perf_numrequests);
+      registerStatsMetric("LLC", core_id, "uncore-totaltime", &m_shmem_perf_totaltime);
+      registerStatsMetric("LLC", core_id, "uncore-requests", &m_shmem_perf_numrequests);
    }
    
 }
