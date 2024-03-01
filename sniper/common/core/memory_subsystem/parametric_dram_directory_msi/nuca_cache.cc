@@ -217,5 +217,6 @@ void NucaCache::markTranslationMetadata(IntPtr address, CacheBlockInfo::block_ty
 void
 NucaCache::measureStats()
 {
-   m_cache->measureStats();
+   if (Sim()->getCfg()->getBool("perf_model/nuca/enabled"))
+      m_cache->measureStats();
 }
