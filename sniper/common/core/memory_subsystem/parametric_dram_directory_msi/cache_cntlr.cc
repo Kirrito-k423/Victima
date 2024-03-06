@@ -464,12 +464,11 @@ CacheCntlr::processMemOpFromCore(
       cache_block_info->invalidate();
       cache_block_info = NULL;
    }
-   else if( cache_hit &&  metadata_request && (metadata_passthrough_loc != 1) ){
-
+   else if( cache_hit &&  metadata_request && (metadata_passthrough_loc != 1) ) //@Qingcai: Here it's just on L1 cache
+   { 
       cache_hit = false;
       cache_block_info->invalidate();
       cache_block_info = NULL;
-   
    }
 
 
@@ -478,7 +477,7 @@ CacheCntlr::processMemOpFromCore(
       ScopedLock sl(getLock());
       // Update the Cache Counters
       getCache()->updateCounters(cache_hit);
-      updateCounters(mem_op_type, ca_address, cache_hit, getCacheState(cache_block_info), block_type,Prefetch::NONE);
+      updateCounters(mem_op_type, ca_address, cache_hit, getCacheState(cache_block_info), block_type, Prefetch::NONE);
    }
 
   
@@ -621,7 +620,6 @@ CacheCntlr::processMemOpFromCore(
          invalidateCacheBlock(ca_address);
       }
 
-
       MYLOG("processMemOpFromCore l%d before next", m_mem_component);
       hit_where = m_next_cache_cntlr->processShmemReqFromPrevCache(eip, this, mem_op_type, ca_address, modeled, count,block_type, Prefetch::NONE, t_start, false, mem_origin);
       bool next_cache_hit = hit_where != HitWhere::MISS;
@@ -673,7 +671,8 @@ CacheCntlr::processMemOpFromCore(
       /* data should now be in next-level cache, go get it */
       SubsecondTime t_now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
 
-      if( !(metadata_request && (metadata_passthrough_loc !=1)) )
+      // if( !(metadata_request && (metadata_passthrough_loc !=1)) )
+      if (!metadata_request || metadata_passthrough_loc == 1)
       {
 
          copyDataFromNextLevel(mem_op_type, ca_address, modeled, t_now, block_type);
@@ -1006,12 +1005,14 @@ CacheCntlr::processShmemReqFromPrevCache(IntPtr eip, CacheCntlr* requester, Core
       cache_block_info = NULL;
       LOG_ASSERT_ERROR(m_next_cache_cntlr != NULL, "Cannot do passthrough on an LLC");
    }
-   // else if (cache_hit && metadata_request && (metadata_passthrough_loc > 2)){
 
-   //    cache_hit = first_hit = false;
-   //    cache_block_info->invalidate();
-   //    cache_block_info = NULL;
-   // }
+   else if (cache_hit && metadata_request && (getCache()->getName() == "L2" && metadata_passthrough_loc > 2))
+   {
+      cache_hit = first_hit = false;
+      cache_block_info->invalidate();
+      cache_block_info = NULL;
+      LOG_ASSERT_ERROR(m_next_cache_cntlr != NULL, "Cannot do passthrough on an LLC");
+   }
 
    if (count)
    {

@@ -36,7 +36,7 @@ class Cache : public CacheBase
       bool m_is_tlb;
       int reuse_levels[3];
       
-      int metadata_passthrough_loc;
+      int metadata_passthrough_loc; //@Qingcai From which level of cache metadata can be stored
       bool potm_enabled;
 
 
