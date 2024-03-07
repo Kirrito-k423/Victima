@@ -259,27 +259,36 @@ CacheCntlr::CacheCntlr(MemComponent::component_t mem_component,
    registerStatsMetric(name, core_id, "metadata-mshr-latency", &stats.metadata_mshr_latency);
    registerStatsMetric(name, core_id, "prefetches", &stats.prefetches);
    
-   for(CacheState::cstate_t state = CacheState::CSTATE_FIRST; state < CacheState::NUM_CSTATE_STATES; state = CacheState::cstate_t(int(state)+1)) {
-      for(CacheBlockInfo::block_type_t type=CacheBlockInfo::block_type_t::PAGE_TABLE;type<CacheBlockInfo::block_type_t::NUM_BLOCK_TYPES;type= CacheBlockInfo::block_type_t(int(type)+1)){
+   // for(CacheState::cstate_t state = CacheState::CSTATE_FIRST; state < CacheState::NUM_CSTATE_STATES; state = CacheState::cstate_t(int(state)+1)) {
+   //    for(CacheBlockInfo::block_type_t type=CacheBlockInfo::block_type_t::PAGE_TABLE;type<CacheBlockInfo::block_type_t::NUM_BLOCK_TYPES;type= CacheBlockInfo::block_type_t(int(type)+1)){
 
-         registerStatsMetric(name, core_id, String("loads-")+CStateString(state)+String("-")+BlockTypeString(type), &stats.loads_state[state][type]);
-         registerStatsMetric(name, core_id, String("stores-") + CStateString(state)+String("-") + BlockTypeString(type), &stats.stores_state[state][type]);
-         registerStatsMetric(name, core_id, String("load-misses-") + CStateString(state) +String("-")+ BlockTypeString(type), &stats.load_misses_state[state][type]);
-         registerStatsMetric(name, core_id, String("store-misses-") + CStateString(state)+String("-") + BlockTypeString(type), &stats.store_misses_state[state][type]);
+   //       registerStatsMetric(name, core_id, String("loads-")+CStateString(state)+String("-")+BlockTypeString(type), &stats.loads_state[state][type]);
+   //       registerStatsMetric(name, core_id, String("stores-") + CStateString(state)+String("-") + BlockTypeString(type), &stats.stores_state[state][type]);
+   //       registerStatsMetric(name, core_id, String("load-misses-") + CStateString(state) +String("-")+ BlockTypeString(type), &stats.load_misses_state[state][type]);
+   //       registerStatsMetric(name, core_id, String("store-misses-") + CStateString(state)+String("-") + BlockTypeString(type), &stats.store_misses_state[state][type]);
          
-      }
-      registerStatsMetric(name, core_id, String("evict-") + CStateString(state), &stats.evict[state]);
-      registerStatsMetric(name, core_id, String("backinval-") + CStateString(state), &stats.backinval[state]);
-   }
+   //    }
+   //    registerStatsMetric(name, core_id, String("evict-") + CStateString(state), &stats.evict[state]);
+   //    registerStatsMetric(name, core_id, String("backinval-") + CStateString(state), &stats.backinval[state]);
+   // }
    
-   if (mem_component == MemComponent::L1_ICACHE || mem_component == MemComponent::L1_DCACHE) {
+   if (mem_component == MemComponent::L1_DCACHE) {
       for(HitWhere::where_t hit_where = HitWhere::WHERE_FIRST; hit_where < HitWhere::NUM_HITWHERES; hit_where = HitWhere::where_t(int(hit_where)+1)) {
          const char * where_str = HitWhereString(hit_where);
          if (where_str[0] == '?') continue;
          registerStatsMetric(name, core_id, String("loads-where-")+where_str, &stats.loads_where[hit_where]);
          registerStatsMetric(name, core_id, String("loads-where-page-table-")+where_str, &stats.loads_where_page_table[hit_where]);
          registerStatsMetric(name, core_id, String("loads-where-utopia")+where_str, &stats.loads_where_utopia[hit_where]);
-
+         registerStatsMetric(name, core_id, String("stores-where-")+where_str, &stats.stores_where[hit_where]);
+      }
+   }
+   if (mem_component == MemComponent::L1_ICACHE) {
+      for(HitWhere::where_t hit_where = HitWhere::WHERE_FIRST; hit_where < HitWhere::NUM_HITWHERES; hit_where = HitWhere::where_t(int(hit_where)+1)) {
+         const char * where_str = HitWhereString(hit_where);
+         if (where_str[0] == '?') continue;
+         registerStatsMetric(name, core_id, String("loads-where-")+where_str, &stats.loads_where[hit_where]);
+         // registerStatsMetric(name, core_id, String("loads-where-page-table-")+where_str, &stats.loads_where_page_table[hit_where]); //@Qingcai: L1-I doesn't store PTE
+         // registerStatsMetric(name, core_id, String("loads-where-utopia")+where_str, &stats.loads_where_utopia[hit_where]);
          registerStatsMetric(name, core_id, String("stores-where-")+where_str, &stats.stores_where[hit_where]);
       }
    }

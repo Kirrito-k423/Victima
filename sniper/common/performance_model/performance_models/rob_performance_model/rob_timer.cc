@@ -141,11 +141,11 @@ RobTimer::RobTimer(
 
    registerStatsMetric("rob_timer", core->getId(), "totalProducerInsDistance", &m_totalProducerInsDistance);
    registerStatsMetric("rob_timer", core->getId(), "totalConsumers", &m_totalConsumers);
-   for (unsigned int i = 0; i < m_producerInsDistance.size(); i++)
-   {
-      String name = "producerInsDistance[" + itostr(i) + "]";
-      registerStatsMetric("rob_timer", core->getId(), name, &(m_producerInsDistance[i]));
-   }
+   // for (unsigned int i = 0; i < m_producerInsDistance.size(); i++)
+   // {
+   //    String name = "producerInsDistance[" + itostr(i) + "]";
+   //    registerStatsMetric("rob_timer", core->getId(), name, &(m_producerInsDistance[i]));
+   // }
 
    if (m_mlp_histogram)
    {

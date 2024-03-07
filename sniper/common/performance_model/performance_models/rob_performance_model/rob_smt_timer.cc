@@ -198,8 +198,8 @@ void RobSmtTimer::initializeThread(smtthread_id_t thread_num)
    thread->m_totalConsumers = 0;
    thread->m_producerInsDistance.resize(windowSize, 0);
 
-   registerStatsMetric("rob_timer", core->getId(), "totalProducerInsDistance", &thread->m_totalProducerInsDistance);
-   registerStatsMetric("rob_timer", core->getId(), "totalConsumers", &thread->m_totalConsumers);
+   // registerStatsMetric("rob_timer", core->getId(), "totalProducerInsDistance", &thread->m_totalProducerInsDistance);
+   // registerStatsMetric("rob_timer", core->getId(), "totalConsumers", &thread->m_totalConsumers);
    for (unsigned int i = 0; i < thread->m_producerInsDistance.size(); i++)
    {
       String name = "producerInsDistance[" + itostr(i) + "]";

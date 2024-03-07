@@ -75,17 +75,17 @@ void init()
       bzero(pthread_counters, pthread_counters_size);
 
       // Register the metrics
-      for (uint32_t c = 0 ; c < num_cores ; c++ )
-      {
-         for (int e = PTHREAD_MUTEX_LOCK ; e < PTHREAD_ENUM_LAST ; e++ )
-         {
-            registerStatsMetric("pthread", c, String(pthread_names[e]) + "_count",      &(pthread_counters[c].pthread_count[e]));
-            registerStatsMetric("pthread", c, String(pthread_names[e]) + "_delay_sync", &(pthread_counters[c].pthread_total_delay_sync[e]));
-            registerStatsMetric("pthread", c, String(pthread_names[e]) + "_delay_mem",  &(pthread_counters[c].pthread_total_delay_mem[e]));
-         }
-         registerStatsMetric("pthread", c, "pthread_mutex_lock_contended", &(pthread_counters[c].pthread_mutex_lock_contended));
-         registerStatsMetric("pthread", c, "pthread_mutex_unlock_contended", &(pthread_counters[c].pthread_mutex_unlock_contended));
-      }
+      // for (uint32_t c = 0 ; c < num_cores ; c++ )
+      // {
+      //    for (int e = PTHREAD_MUTEX_LOCK ; e < PTHREAD_ENUM_LAST ; e++ )
+      //    {
+      //       registerStatsMetric("pthread", c, String(pthread_names[e]) + "_count",      &(pthread_counters[c].pthread_count[e]));
+      //       registerStatsMetric("pthread", c, String(pthread_names[e]) + "_delay_sync", &(pthread_counters[c].pthread_total_delay_sync[e]));
+      //       registerStatsMetric("pthread", c, String(pthread_names[e]) + "_delay_mem",  &(pthread_counters[c].pthread_total_delay_mem[e]));
+      //    }
+      //    registerStatsMetric("pthread", c, "pthread_mutex_lock_contended", &(pthread_counters[c].pthread_mutex_lock_contended));
+      //    registerStatsMetric("pthread", c, "pthread_mutex_unlock_contended", &(pthread_counters[c].pthread_mutex_unlock_contended));
+      // }
 
       if (Sim()->getCfg()->getBool("log/mutex_trace"))
         trace_fp = fopen(Sim()->getConfig()->formatOutputFileName("mutextrace.txt").c_str(), "w");

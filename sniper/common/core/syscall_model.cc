@@ -45,14 +45,14 @@ SyscallMdl::SyscallMdl(Thread *thread)
    bzero(futex_counters, futex_counters_size);
 
    // Register the metrics
-   for (unsigned int e = 0; e < sizeof(futex_names) / sizeof(futex_names[0]); e++)
-   {
-      registerStatsMetric("futex", thread->getId(), boost::to_lower_copy(String(futex_names[e]) + "_count"), &(futex_counters->count[e]));
-      registerStatsMetric("futex", thread->getId(), boost::to_lower_copy(String(futex_names[e]) + "_delay"), &(futex_counters->delay[e]));
-   }
+   // for (unsigned int e = 0; e < sizeof(futex_names) / sizeof(futex_names[0]); e++)
+   // {
+   //    registerStatsMetric("futex", thread->getId(), boost::to_lower_copy(String(futex_names[e]) + "_count"), &(futex_counters->count[e]));
+   //    registerStatsMetric("futex", thread->getId(), boost::to_lower_copy(String(futex_names[e]) + "_delay"), &(futex_counters->delay[e]));
+   // }
 
-   registerStatsMetric("syscall", thread->getId(), "stdout-bytes", &m_stdout_bytes);
-   registerStatsMetric("syscall", thread->getId(), "stderr-bytes", &m_stderr_bytes);
+   // registerStatsMetric("syscall", thread->getId(), "stdout-bytes", &m_stdout_bytes);
+   // registerStatsMetric("syscall", thread->getId(), "stderr-bytes", &m_stderr_bytes);
 }
 
 SyscallMdl::~SyscallMdl()
