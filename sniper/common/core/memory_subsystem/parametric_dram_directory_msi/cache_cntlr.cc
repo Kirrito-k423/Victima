@@ -1015,13 +1015,13 @@ CacheCntlr::processShmemReqFromPrevCache(IntPtr eip, CacheCntlr* requester, Core
       LOG_ASSERT_ERROR(m_next_cache_cntlr != NULL, "Cannot do passthrough on an LLC");
    }
 
-   else if (cache_hit && metadata_request && (getCache()->getName() == "L2" && metadata_passthrough_loc > 2))
-   {
-      cache_hit = first_hit = false;
-      cache_block_info->invalidate();
-      cache_block_info = NULL;
-      LOG_ASSERT_ERROR(m_next_cache_cntlr != NULL, "Cannot do passthrough on an LLC");
-   }
+   // else if (cache_hit && metadata_request && (getCache()->getName() == "L2" && metadata_passthrough_loc > 2))
+   // {
+   //    cache_hit = first_hit = false;
+   //    cache_block_info->invalidate();
+   //    cache_block_info = NULL;
+   //    LOG_ASSERT_ERROR(m_next_cache_cntlr != NULL, "Cannot do passthrough on an LLC");
+   // }
 
    if (count)
    {
