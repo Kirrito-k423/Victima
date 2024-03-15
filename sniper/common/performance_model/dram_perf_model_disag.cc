@@ -15,10 +15,10 @@ DramPerfModelDisagg::DramPerfModelDisagg(core_id_t core_id, UInt32 cache_block_s
    , m_core_id(core_id)
    , m_address_home_lookup(address_home_lookup)
 //   , m_memory_manager(memory_manager)
-   , m_num_banks           (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_banks"))
+   , m_num_banks           (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_banks")) // @Qingcai: banks per rank
    , m_num_banks_log2      (floorLog2(m_num_banks))
-   , m_num_bank_groups     (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_bank_groups"))
-   , m_num_ranks           (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_ranks"))
+   , m_num_bank_groups     (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_bank_groups")) // @Qingcai: bank groups per rank
+   , m_num_ranks           (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_ranks")) // @Qingcai: ranks per channel
    , m_rank_offset         (Sim()->getCfg()->getInt("perf_model/dram/ddr/rank_offset"))
    , m_num_channels        (Sim()->getCfg()->getInt("perf_model/dram/ddr/num_channels"))
    , m_channel_offset      (Sim()->getCfg()->getInt("perf_model/dram/ddr/channel_offset"))
