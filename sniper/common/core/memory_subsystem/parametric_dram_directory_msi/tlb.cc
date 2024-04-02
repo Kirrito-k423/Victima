@@ -315,7 +315,7 @@ namespace ParametricDramDirectoryMSI
       IntPtr vpn_4kb =(address >> 12);
       IntPtr vpn_2mb =(address >> 21);
 
-      IntPtr tlb_address_4KB = (IntPtr)software_tlb+((vpn_4kb % m_size) * m_associativity)*16;
+      IntPtr tlb_address_4KB = (IntPtr)software_tlb+((vpn_4kb % m_size) * m_associativity)*16; // @Qingcai: Each entry is 16 Byte
       IntPtr tlb_address_2MB = (IntPtr)software_tlb+((vpn_2mb % m_size) * m_associativity)*16;
 
       

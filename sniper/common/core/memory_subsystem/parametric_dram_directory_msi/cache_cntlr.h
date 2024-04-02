@@ -296,7 +296,7 @@ namespace ParametricDramDirectoryMSI
          // Core-interfacing stuff
          void accessCache(
                Core::mem_op_t mem_op_type,
-               IntPtr ca_address, UInt32 offset,
+               IntPtr ca_address, UInt32 offset, // @Qingcai: Basically ca_address is the 64B/cacheline-size aligned
                Byte* data_buf, UInt32 data_length, bool update_replacement);
          bool operationPermissibleinCache(
                IntPtr address, Core::mem_op_t mem_op_type, CacheBlockInfo **cache_block_info = NULL);
