@@ -51,6 +51,7 @@ namespace ParametricDramDirectoryMSI
     , victima_alloc_on_eviction(0)
     , victima_alloc_on_ptw(0)
     , total_potm_latency(SubsecondTime::Zero())
+    , total_cuckoo_potm_latency(SubsecondTime::Zero())
     , nuca_tlb_cache_hit(0)
     , m_tlb_address_saved_cnt(0)
     , utopia_enabled(_utopia_enabled)
@@ -68,6 +69,7 @@ namespace ParametricDramDirectoryMSI
     is_stlb = (name == "stlb");
     is_itlb = (name == "itlb");
     is_potm = (name == "potm_tlb");
+    is_cuckoo_potm = (name == "cuckoo_potm_tlb");
 
 
     m_num_entries = num_entries;          
@@ -80,9 +82,14 @@ namespace ParametricDramDirectoryMSI
     //Part of Memory TLB [ISCA 2017] 
     potm_enabled = Sim()->getCfg()->getBool("perf_model/tlb/potm_enabled");
 
+    cuckoo_potm_enabled = Sim()->getCfg()->getBool("perf_model/tlb/cuckoo_potm_enabled");
 
     if(potm_enabled && !(m_next_level)){
       registerStatsMetric(name, core_id, "potm_latency", &total_potm_latency); // @kanellok @tlb_address_access 
+    }
+
+    if(cuckoo_potm_enabled && !(m_next_level)){
+      registerStatsMetric(name, core_id, "potm_latency", &total_cuckoo_potm_latency); 
     }
     
     /* @kanellok UTOPIA related parameters */
@@ -167,6 +174,7 @@ namespace ParametricDramDirectoryMSI
        if      (is_dtlb || is_nested || is_itlb) return where_t::L1;
        else if (is_stlb) return where_t::L2;
        else if (is_potm) return where_t::POTM;
+       else if (is_cuckoo_potm) return where_t::CUCKOO_POTM;
     }
 
 
@@ -305,6 +313,9 @@ namespace ParametricDramDirectoryMSI
               }
             #endif
 
+    }
+    else if (cuckoo_potm_enabled && !is_nested && level==2) {
+    
     }
     else if (potm_enabled && !is_nested && level==2) // We have an L2 TLB Miss and POTM ISCA 2017 is enabled
     {
@@ -554,6 +565,10 @@ namespace ParametricDramDirectoryMSI
             #endif
               
               m_next_level->allocate(evict_addr, now, level+1, lock_signal);
+      }
+
+      if(eviction && !(m_next_level) && potm_enabled && !(is_nested) && (level == 2)){
+        
       }
 
       //If POTM is enabled and we have an L2 TLB eviction, allocate the evicted translation in the POTM but dont do this for nested TLB

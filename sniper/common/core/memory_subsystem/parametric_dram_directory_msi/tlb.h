@@ -27,6 +27,7 @@ namespace ParametricDramDirectoryMSI
     bool victima_enabled;
     bool victimize_on_ptw;
     bool potm_enabled;
+    bool cuckoo_potm_enabled;
     
     PageTableWalker *ptw;
     bool ptw_enabled;
@@ -41,6 +42,7 @@ namespace ParametricDramDirectoryMSI
     UInt64 m_access, m_miss, m_eviction;
     UInt64 l1_tlb_cache_hit, l2_tlb_cache_hit, nuca_tlb_cache_hit, victima_alloc_on_eviction, victima_alloc_on_ptw;
     SubsecondTime total_potm_latency;
+    SubsecondTime total_cuckoo_potm_latency;
 
     ShmemPerfModel* m_shmem_perf_model;
     bool m_translation_enabled;
@@ -56,8 +58,10 @@ namespace ParametricDramDirectoryMSI
     bool track_Accesses;
 
 
-    char* software_tlb; //POTM-related parameter
+    char* software_tlb; //POTM-related parameter, used for the base address of software tlb
+
     SubsecondTime final_potm_latency; //POTM-related parameter
+    SubsecondTime final_cuckoo_potm_latency;
 
 
     TLB *m_next_level;
@@ -67,6 +71,7 @@ namespace ParametricDramDirectoryMSI
     bool is_stlb;
     bool is_nested;
     bool is_potm;
+    bool is_cuckoo_potm;
 
     UInt64 *tlb_address_access;
     int m_tlb_address_saved_cnt;
@@ -122,6 +127,7 @@ namespace ParametricDramDirectoryMSI
         L1 = 0,
         L2,
         POTM,
+        CUCKOO_POTM,
         L1_CACHE,
         L2_CACHE,
         NUCA_CACHE,
@@ -144,7 +150,12 @@ namespace ParametricDramDirectoryMSI
       std::cout << "[VM] POTM: Setting up POTM data structure as L3 TLB with " << num_entries << " entries" << std::endl;
       software_tlb = (char*) malloc(num_entries*(8+8)); // 8 bytes for VPN and 8 bytes for PPN
     }
+    void setCUCKOOPOTMDataStructure(int d, int num_entries){ 
+      std::cout << "[VM] POTM: Setting up CUCKOO POTM data structure as L3 TLB with " << d << "cuckoo tables, and each table with" << num_entries << " entries" << std::endl;
+      // cuckoo_software_tlb = (char*) malloc(d * num_entries*(8+8)); // 8 bytes for VPN and 8 bytes for PPN
+    }
     SubsecondTime getPOTMlookupTime(){ return final_potm_latency; }
+    SubsecondTime getCUCKOOPOTMlookupTime(){ return final_cuckoo_potm_latency; }
 
    
     static const UInt64 ADDRESS_REQUEST_VEC_MAX = 10000000;

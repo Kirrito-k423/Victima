@@ -460,10 +460,11 @@ Core::initiateMemoryAccess(MemComponent::component_t mem_component,
  * Arguments:
  *   lock_signal :: NONE, LOCK, or UNLOCK
  *   mem_op_type :: READ, READ_EX, or WRITE
- *   d_addr :: address of location we want to access (read or write)
+ *   d_addr :: virtual address of location we want to access (read or write), read from sift trace file
  *   data_buffer :: buffer holding data for WRITE or buffer which must be written on a READ
  *   data_size :: size of data we must read/write
- *
+ *   eip :: Extended Instruction Pointer, stands for instruction pointer
+ * 
  * Return Value:
  *   number of misses :: State the number of cache misses
  */

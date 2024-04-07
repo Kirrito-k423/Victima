@@ -45,6 +45,7 @@ namespace ParametricDramDirectoryMSI
             TLB_HIT_L1,
             TLB_HIT_L2,
             TLB_POTM_HIT,
+            TLB_CUCKOO_POTM_HIT,
             TLB_HIT_CACHE_L1,
             TLB_HIT_CACHE_L2,
             TLB_HIT_CACHE_NUCA,
@@ -71,7 +72,7 @@ namespace ParametricDramDirectoryMSI
          AddressHomeLookup* m_dram_controller_home_lookup;
          
          
-         TLB *m_itlb, *m_dtlb, *m_stlb, *m_potm_tlb;
+         TLB *m_itlb, *m_dtlb, *m_stlb, *m_potm_tlb, *m_cuckoo_potm_tlb;
 
          RLB *m_rlb;
 
@@ -90,6 +91,7 @@ namespace ParametricDramDirectoryMSI
          ComponentLatency m_tlb_l1_miss_penalty;
          ComponentLatency m_tlb_l2_miss_penalty;
          ComponentLatency potm_latency;
+         ComponentLatency cuckoo_potm_latency;
          ComponentLatency migration_latency;
 
          bool m_utopia_enabled;
@@ -97,6 +99,7 @@ namespace ParametricDramDirectoryMSI
          bool m_utopia_permission_enabled;
          bool m_utopia_tag_enabled;
          bool m_potm_enabled;
+         bool m_cuckoo_potm_enabled;
          bool m_virtualized;
 
          bool m_parallel_walk;
@@ -235,6 +238,7 @@ namespace ParametricDramDirectoryMSI
          Cache* getLastLevelCache() { return getCache(MemComponent::LAST_LEVEL_CACHE); }
          TLB* getTLB() {return m_dtlb;}
          TLB* getPOTM() {return m_potm_tlb;}
+         TLB* getCUCKOO_POTM() {return m_cuckoo_potm_tlb;}
          PrL1PrL2DramDirectoryMSI::DramDirectoryCache* getDramDirectoryCache() { return m_dram_directory_cntlr->getDramDirectoryCache(); }
          PrL1PrL2DramDirectoryMSI::DramCntlr* getDramCntlr() { return m_dram_cntlr; }
          AddressHomeLookup* getTagDirectoryHomeLookup() { return m_tag_directory_home_lookup; }
