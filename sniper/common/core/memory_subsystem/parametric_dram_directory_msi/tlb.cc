@@ -69,8 +69,6 @@ namespace ParametricDramDirectoryMSI
     is_stlb = (name == "stlb");
     is_itlb = (name == "itlb");
     is_potm = (name == "potm_tlb");
-    is_cuckoo_potm = (name == "cuckoo_potm_tlb");
-
 
     m_num_entries = num_entries;          
     ptw = _ptw;
@@ -89,7 +87,7 @@ namespace ParametricDramDirectoryMSI
     }
 
     if(cuckoo_potm_enabled && !(m_next_level)){
-      registerStatsMetric(name, core_id, "potm_latency", &total_cuckoo_potm_latency); 
+      registerStatsMetric(name, core_id, "cuckoo_potm_latency", &total_cuckoo_potm_latency); 
     }
     
     /* @kanellok UTOPIA related parameters */
@@ -174,7 +172,6 @@ namespace ParametricDramDirectoryMSI
        if      (is_dtlb || is_nested || is_itlb) return where_t::L1;
        else if (is_stlb) return where_t::L2;
        else if (is_potm) return where_t::POTM;
-       else if (is_cuckoo_potm) return where_t::CUCKOO_POTM;
     }
 
 
@@ -315,7 +312,9 @@ namespace ParametricDramDirectoryMSI
 
     }
     else if (cuckoo_potm_enabled && !is_nested && level==2) {
-    
+      CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
+      CUCKOO_TLB::where_t hit;
+      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal);
     }
     else if (potm_enabled && !is_nested && level==2) // We have an L2 TLB Miss and POTM ISCA 2017 is enabled
     {

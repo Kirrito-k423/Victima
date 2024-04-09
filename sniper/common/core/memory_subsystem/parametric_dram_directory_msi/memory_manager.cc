@@ -425,11 +425,17 @@ MemoryManager::MemoryManager(Core* core,
 
       UInt32 cuckoo_potm_size = Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/size");
       UInt32 cuckoo_potm_d = Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/d");
+      String hash_func = Sim()->getCfg()->getString("perf_model/cuckoo_potm_tlb/hash_func");
+      float rehash_threshold = Sim()->getCfg()->getFloat("perf_model/cuckoo_potm_tlb/rehash_threshold");
+      int scale = Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/scale");
+      int swaps = Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/swaps");
+      int priority = Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/priority");
+      
       if(m_cuckoo_potm_enabled){
          std::cout << "[VM] CUCKOO POTM is enabled " << std::endl;
-         m_cuckoo_potm_tlb = new TLB("cuckoo_potm_tlb", "perf_model/cuckoo_potm_tlb", getCore()->getId(), shmem_perf_model, potm_size, m_system_page_size, Sim()->getCfg()->getInt("perf_model/cuckoo_potm_tlb/associativity"), NULL, m_utopia_enabled, track_misses, track_accesses, page_size_list,  number_of_page_sizes, ptw);
-         m_cuckoo_potm_tlb->setCUCKOOPOTMDataStructure(cuckoo_potm_d, potm_size);
+         m_cuckoo_potm_tlb = new CUCKOO_TLB("cuckoo_potm_tlb", "perf_model/cuckoo_potm_tlb", getCore()->getId(), shmem_perf_model, cuckoo_potm_d, strdup(hash_func.c_str()), cuckoo_potm_size, rehash_threshold, scale, swaps, priority, page_size_list,  number_of_page_sizes, ptw); 
       }
+
       UInt32 stlb_size = Sim()->getCfg()->getInt("perf_model/stlb/size");
 
       if(stlb_size)
@@ -1079,8 +1085,6 @@ TranslationResult MemoryManager::accessTLBSubsystem(IntPtr eip, TLB * tlb, IntPt
                result.latency = ptw_latency + m_tlb_l1_access_penalty.getLatency() + m_tlb_l2_access_penalty.getLatency();
               else if(m_potm_enabled) //if POM-TLB latency is not static: act as software TLB
                result.latency = ptw_latency + m_tlb_l1_access_penalty.getLatency() + m_tlb_l2_access_penalty.getLatency()+m_stlb->getPOTMlookupTime();
-              else if(m_cuckoo_potm_enabled)
-               result.latency = ptw_latency + m_tlb_l1_access_penalty.getLatency() + m_tlb_l2_access_penalty.getLatency()+m_stlb->getCUCKOOPOTMlookupTime();
               else if (m_parallel_walk)
                result.latency = ptw_latency + m_tlb_l1_access_penalty.getLatency();
               else if(!(m_parallel_walk)){
@@ -1118,10 +1122,6 @@ TranslationResult MemoryManager::accessTLBSubsystem(IntPtr eip, TLB * tlb, IntPt
 
          result.hitwhere = TranslationHitWhere::TLB_POTM_HIT;
       }
-      if(hit == TLB::where_t::CUCKOO_POTM){
-         result.latency = m_tlb_l1_access_penalty.getLatency() + m_tlb_l2_access_penalty.getLatency()+m_stlb->getCUCKOOPOTMlookupTime();
-         result.hitwhere = TranslationHitWhere::TLB_CUCKOO_POTM_HIT;
-      }
       if(hit == TLB::where_t::L1_CACHE){
          result.latency = m_tlb_l1_access_penalty.getLatency()+ m_tlb_l1_cache_access.getLatency(); //parallel access to L2 and victima 
          result.hitwhere = TranslationHitWhere::TLB_HIT_CACHE_L1;
@@ -1151,6 +1151,18 @@ TranslationResult MemoryManager::accessTLBSubsystem(IntPtr eip, TLB * tlb, IntPt
    }
 
    return result;
+}
+
+TranslationResult accessCUCKOOTLBSubsystem(
+   IntPtr eip,
+   IntPtr address, 
+   bool modeled,
+   bool count, 
+   Core::lock_signal_t lock_signal, 
+   Byte* data_buf, 
+   UInt32 data_length)
+{
+   std::cout << "First STEP!!!" << std::endl;
 }
 
 TranslationResult MemoryManager::accessUtopiaSubsystem(

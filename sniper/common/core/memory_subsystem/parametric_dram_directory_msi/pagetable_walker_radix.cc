@@ -147,7 +147,7 @@ namespace ParametricDramDirectoryMSI{
 
     }
 
-    SubsecondTime PageTableWalkerRadix::InitializeWalkRecursive(IntPtr eip, uint64_t address,
+    SubsecondTime PageTableWalkerRadix::InitializeWalkRecursive(IntPtr eip, IntPtr  address,
         int level,ptw_table* new_table,
         Core::lock_signal_t lock_signal,
         Byte* data_buf, UInt32 data_length,
@@ -253,7 +253,7 @@ namespace ParametricDramDirectoryMSI{
         }
         return init_walk_recursive_functional(address,2,starting_table->entries[a1].next_level_table);
     }
-    int PageTableWalkerRadix::init_walk_recursive_functional(uint64_t address,int level,ptw_table* new_table){
+    int PageTableWalkerRadix::init_walk_recursive_functional(IntPtr address,int level,ptw_table* new_table){
         uint64_t a1;
         int shift_bits=0;
        // std::cout << "Level  = " << level << std::endl;

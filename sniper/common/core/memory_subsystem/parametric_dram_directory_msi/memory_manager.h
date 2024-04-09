@@ -16,6 +16,7 @@
 #include "pagetable_walker.h"
 #include "pagetable_walker_radix.h"
 #include "tlb.h"
+#include "cuckoo_tlb.h"
 #include "rangelb.h"
 #include "pwc.h"
 #include "ulb.h"
@@ -72,7 +73,8 @@ namespace ParametricDramDirectoryMSI
          AddressHomeLookup* m_dram_controller_home_lookup;
          
          
-         TLB *m_itlb, *m_dtlb, *m_stlb, *m_potm_tlb, *m_cuckoo_potm_tlb;
+         TLB *m_itlb, *m_dtlb, *m_stlb, *m_potm_tlb;
+         CUCKOO_TLB *m_cuckoo_potm_tlb;
 
          RLB *m_rlb;
 
@@ -238,7 +240,7 @@ namespace ParametricDramDirectoryMSI
          Cache* getLastLevelCache() { return getCache(MemComponent::LAST_LEVEL_CACHE); }
          TLB* getTLB() {return m_dtlb;}
          TLB* getPOTM() {return m_potm_tlb;}
-         TLB* getCUCKOO_POTM() {return m_cuckoo_potm_tlb;}
+         CUCKOO_TLB* getCUCKOO_POTM() {return m_cuckoo_potm_tlb;}
          PrL1PrL2DramDirectoryMSI::DramDirectoryCache* getDramDirectoryCache() { return m_dram_directory_cntlr->getDramDirectoryCache(); }
          PrL1PrL2DramDirectoryMSI::DramCntlr* getDramCntlr() { return m_dram_cntlr; }
          AddressHomeLookup* getTagDirectoryHomeLookup() { return m_tag_directory_home_lookup; }
@@ -267,6 +269,16 @@ namespace ParametricDramDirectoryMSI
             Byte *data_buf, UInt32 data_length,
             bool modeled,
             bool count);
+
+         TranslationResult accessCUCKOOTLBSubsystem(
+            IntPtr eip,
+            IntPtr address, 
+            bool modeled,
+            bool count, 
+            Core::lock_signal_t lock_signal, 
+            Byte* data_buf, 
+            UInt32 data_length
+         );
          
          TranslationResult accessUtopiaSubsystem(
             IntPtr eip,

@@ -77,7 +77,7 @@ namespace ParametricDramDirectoryMSI{
     }
     SubsecondTime ModrianMemoryManager::FindPermissionsRecursive(
         IntPtr eip,
-        uint64_t address,
+        IntPtr address,
         int level,table* new_table,
         Core::lock_signal_t lock_signal,
         Byte* data_buf, UInt32 data_length,

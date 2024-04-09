@@ -150,10 +150,10 @@ namespace ParametricDramDirectoryMSI
       std::cout << "[VM] POTM: Setting up POTM data structure as L3 TLB with " << num_entries << " entries" << std::endl;
       software_tlb = (char*) malloc(num_entries*(8+8)); // 8 bytes for VPN and 8 bytes for PPN
     }
-    void setCUCKOOPOTMDataStructure(int d, int num_entries){ 
-      std::cout << "[VM] POTM: Setting up CUCKOO POTM data structure as L3 TLB with " << d << "cuckoo tables, and each table with" << num_entries << " entries" << std::endl;
-      // cuckoo_software_tlb = (char*) malloc(d * num_entries*(8+8)); // 8 bytes for VPN and 8 bytes for PPN
-    }
+    // void setCUCKOOPOTMDataStructure(int d, int num_entries){ 
+    //   std::cout << "[VM] POTM: Setting up CUCKOO POTM data structure as L3 TLB with " << d << "cuckoo tables, and each table with" << num_entries << " entries" << std::endl;
+    //   // cuckoo_software_tlb = (char*) malloc(d * num_entries*(8+8)); // 8 bytes for VPN and 8 bytes for PPN
+    // }
     SubsecondTime getPOTMlookupTime(){ return final_potm_latency; }
     SubsecondTime getCUCKOOPOTMlookupTime(){ return final_cuckoo_potm_latency; }
 
