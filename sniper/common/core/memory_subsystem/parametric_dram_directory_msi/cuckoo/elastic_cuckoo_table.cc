@@ -14,6 +14,8 @@
 #define HASH_SIZE 8
 #define MAX_RETRIES 64
 #define EXTEND 1.25
+#define NUM_CHANNEL 8
+#define CHANNEL_OFFSET 9
 
 uint64_t hash_size(uint64_t size);
 
@@ -421,8 +423,8 @@ std::vector<elem_t> find(elem_t *elem, cuckooTable_t *hashtable) {
     hash = gen_hash(elem, hashtable, nest);
     elem_t toAdd;
     toAdd.valid = 0;
-    toAdd.value = (uint64_t)&hashtable->hashtable[nest][hash];
-
+    // toAdd.value = (uint64_t)&hashtable->hashtable[nest][hash];
+    toAdd.value = map_address_to_channel((uint64_t)&hashtable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
     // VPN: 0x000100
 
     accessedAddresses.push_back(toAdd);
@@ -455,8 +457,8 @@ std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtab
       selectTable = hashtable->current;
     }
     elem_t toAdd;
-    toAdd.valid = 0;
-    toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
+    // toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
+    toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
     accessedAddresses.push_back(toAdd);
     if (selectTable->hashtable[nest][hash].valid == 1 &&
         selectTable->hashtable[nest][hash].value == elem->value) {

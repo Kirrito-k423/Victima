@@ -133,7 +133,7 @@ namespace ParametricDramDirectoryMSI
                 IntPtr cache_address = addr.value & (~((64 - 1))); 		
                 CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
                 CacheBlockInfo::block_type_t block_type =  CacheBlockInfo::block_type_t::TLB_ENTRY;
-
+                
                 l1dcache->processMemOpFromCore(
                     0,
                     lock_signal,

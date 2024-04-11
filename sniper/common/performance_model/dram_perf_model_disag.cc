@@ -207,11 +207,11 @@ void
 DramPerfModelDisagg::parseDeviceAddress(IntPtr address, UInt32 &channel, UInt32 &rank, UInt32 &bank_group, UInt32 &bank, UInt32 &column, UInt64 &page)
 {
    // Construct DDR address which has bits used for interleaving removed
-   UInt64 linearAddress = m_address_home_lookup->getLinearAddress(address);
+   UInt64 linearAddress = m_address_home_lookup->getLinearAddress(address); // Here linear address is actually the same with address if using one dram controller and cache block size 64B
    UInt64 address_bits = linearAddress >> 6;
    /*address_bits = */parseAddressBits(address_bits, channel, m_channel_offset, m_num_channels, m_channel_offset < m_home_lookup_bit ? address : linearAddress);
    address_bits = parseAddressBits(address_bits, rank,    m_rank_offset,    m_num_ranks,    m_rank_offset < m_home_lookup_bit ? address : linearAddress);
-   
+
 
    if (m_open_page_mapping)
    {

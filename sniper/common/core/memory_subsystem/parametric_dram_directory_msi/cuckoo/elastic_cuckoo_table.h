@@ -13,6 +13,7 @@
 #include <immintrin.h>
 #include <math.h>
 #include <vector>
+#include "cuckoo_utils.h"
 
 #define uint64_t unsigned long long
 #define uint32_t unsigned long

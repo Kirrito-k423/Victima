@@ -567,7 +567,10 @@ namespace ParametricDramDirectoryMSI
       }
 
       if(eviction && !(m_next_level) && potm_enabled && !(is_nested) && (level == 2)){
-        
+          int page_size_evicted = evict_block_info.getPageSize();
+          IntPtr evict_addr_vpn = evict_addr >> page_size_evicted;
+          CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
+          cuckoo_potm->allocate(evict_addr, now, level+1, lock_signal); 
       }
 
       //If POTM is enabled and we have an L2 TLB eviction, allocate the evicted translation in the POTM but dont do this for nested TLB
