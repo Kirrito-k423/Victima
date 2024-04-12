@@ -314,7 +314,8 @@ namespace ParametricDramDirectoryMSI
     else if (cuckoo_potm_enabled && !is_nested && level==2) {
       CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
       CUCKOO_TLB::where_t hit;
-      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal);
+      CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
+      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, l1dcache);
     }
     else if (potm_enabled && !is_nested && level==2) // We have an L2 TLB Miss and POTM ISCA 2017 is enabled
     {
@@ -566,7 +567,7 @@ namespace ParametricDramDirectoryMSI
               m_next_level->allocate(evict_addr, now, level+1, lock_signal);
       }
 
-      if(eviction && !(m_next_level) && potm_enabled && !(is_nested) && (level == 2)){
+      if(eviction && !(m_next_level) && cuckoo_potm_enabled && !(is_nested) && (level == 2)){
           int page_size_evicted = evict_block_info.getPageSize();
           IntPtr evict_addr_vpn = evict_addr >> page_size_evicted;
           CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
