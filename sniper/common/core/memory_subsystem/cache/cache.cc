@@ -56,7 +56,8 @@ Cache::Cache(
    sum_metadata_reuse(0),
    number_of_metadata_reuse(0),
    metadata_passthrough_loc(Sim()->getCfg()->getInt("perf_model/metadata/passthrough_loc")),
-   potm_enabled(Sim()->getCfg()->getBool("perf_model/tlb/potm_enabled"))
+   potm_enabled(Sim()->getCfg()->getBool("perf_model/tlb/potm_enabled")),
+   cuckoo_potm_enabled(Sim()->getCfg()->getBool("perf_model/tlb/cuckoo_potm_enabled"))
 {
    reuse_levels[0]=5;
    reuse_levels[1]=10;
@@ -275,7 +276,7 @@ Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
 
    *evict_addr = tagToAddress(evict_block_info->getTag());
 
-   if( m_name == "nuca-cache" && ( evict_block_info->getBlockType()== CacheBlockInfo::TLB_ENTRY || evict_block_info->getBlockType() == CacheBlockInfo::TLB_ENTRY_PASSTHROUGH) && !(potm_enabled)){
+   if( m_name == "nuca-cache" && ( evict_block_info->getBlockType()== CacheBlockInfo::TLB_ENTRY || evict_block_info->getBlockType() == CacheBlockInfo::TLB_ENTRY_PASSTHROUGH) && !(potm_enabled) && !(cuckoo_potm_enabled)){
      *eviction = false;
       evict_addr= NULL;
    }

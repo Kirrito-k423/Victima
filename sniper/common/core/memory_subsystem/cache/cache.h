@@ -38,6 +38,7 @@ class Cache : public CacheBase
       
       int metadata_passthrough_loc; //@Qingcai From which level of cache metadata can be stored
       bool potm_enabled;
+      bool cuckoo_potm_enabled;
 
 
       float average_data_reuse;

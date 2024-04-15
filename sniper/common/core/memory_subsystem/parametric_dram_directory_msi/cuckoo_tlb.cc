@@ -42,7 +42,7 @@ namespace ParametricDramDirectoryMSI
 
         }
 
-    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, int level, Core::lock_signal_t lock_signal) { // allocate POM TLB entry in cuckoo tables
+    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t lock_signal) { // allocate POM TLB entry in cuckoo tables
         int page_size = ptw->init_walk_functional(address);
         IntPtr vpn = address >> page_size;
         m_eviction++;
@@ -72,8 +72,7 @@ namespace ParametricDramDirectoryMSI
 
     }
 
-    CUCKOO_TLB::where_t CUCKOO_TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal, CacheCntlr* l1dcache) {
-        int page_size = ptw->init_walk_functional(address);
+    CUCKOO_TLB::where_t CUCKOO_TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal, int page_size, CacheCntlr* l1dcache) {
         IntPtr vpn = address >> page_size;
         if(model_count) m_access++;
         
@@ -127,11 +126,9 @@ namespace ParametricDramDirectoryMSI
         // now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
         SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
         if(found4KB || !found) {
-            for(elem_t addr: accessedAddresses_4KB) {
-                
+            for(elem_t addr: accessedAddresses_4KB) {  
                 IntPtr cache_address = addr.value & (~((64 - 1))); 		
                 CacheBlockInfo::block_type_t block_type = CacheBlockInfo::block_type_t::TLB_ENTRY;
-
                 l1dcache->processMemOpFromCore(
                     0,
                     lock_signal,

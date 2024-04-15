@@ -6,9 +6,18 @@
 #include "logmem.h"
 #include "exceptions.h"
 #include "sim_api.h"
+#include <signal.h>
+#include <stdlib.h>
 
+void signal_handler(int sig) {
+    printf("Caught signal %d, cleaning up and exiting...\n", sig);
+    exit(0);  // Ensures that gmon.out is written
+}
 int main(int argc, char* argv[])
 {
+   signal(SIGINT, signal_handler);  // For Control+C
+   signal(SIGTERM, signal_handler); // For kill command
+   
    // Set thread name for Sniper-in-Sniper simulations
    printf("Starting sim");
 

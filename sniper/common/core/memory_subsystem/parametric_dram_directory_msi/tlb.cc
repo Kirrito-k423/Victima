@@ -315,7 +315,7 @@ namespace ParametricDramDirectoryMSI
       CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
       CUCKOO_TLB::where_t hit;
       CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
-      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, l1dcache);
+      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, page_size, l1dcache);
     }
     else if (potm_enabled && !is_nested && level==2) // We have an L2 TLB Miss and POTM ISCA 2017 is enabled
     {
@@ -571,7 +571,7 @@ namespace ParametricDramDirectoryMSI
           int page_size_evicted = evict_block_info.getPageSize();
           IntPtr evict_addr_vpn = evict_addr >> page_size_evicted;
           CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
-          cuckoo_potm->allocate(evict_addr, now, level+1, lock_signal); 
+          cuckoo_potm->allocate(evict_addr, now, lock_signal); 
       }
 
       //If POTM is enabled and we have an L2 TLB eviction, allocate the evicted translation in the POTM but dont do this for nested TLB

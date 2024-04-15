@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-O2 -g  -Wall -Wextra -Wno-long-long -mrdrnd -m64 -lm
+CFLAGS=-O3 -g -Wall -Wextra -Wno-long-long -mrdrnd -m64 -lm
 CUCKOOBINS=elastic_cuckoo
 
 all:		$(CUCKOOBINS)

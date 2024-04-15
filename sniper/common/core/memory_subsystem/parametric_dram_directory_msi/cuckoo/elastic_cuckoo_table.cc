@@ -8,6 +8,7 @@
 #include <string.h>
 #include <vector>
 
+
 #include "elastic_cuckoo_table.h"
 //#define DEBUG 1
 
@@ -147,6 +148,7 @@ uint64_t evaluate_elasticity(elasticCuckooTable_t *hashtable,
   uint64_t retries = 0;
   if (hashtable->current->occupancy > hashtable->rehash_threshold &&
       !hashtable->rehashing) {
+    printf("occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
     hashtable->rehashing = 1;
     hashtable->migrate = (cuckooTable_t *)malloc(sizeof(cuckooTable_t));
     create(hashtable->d, hashtable->curr_size * hashtable->scale,
