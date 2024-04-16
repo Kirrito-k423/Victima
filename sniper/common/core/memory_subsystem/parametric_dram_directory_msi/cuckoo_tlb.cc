@@ -42,8 +42,8 @@ namespace ParametricDramDirectoryMSI
 
         }
 
-    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t lock_signal) { // allocate POM TLB entry in cuckoo tables
-        int page_size = ptw->init_walk_functional(address);
+    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t lock_signal, int page_size) { // allocate POM TLB entry in cuckoo tables
+        // int page_size = ptw->init_walk_functional(address);
         IntPtr vpn = address >> page_size;
         m_eviction++;
 
@@ -79,36 +79,42 @@ namespace ParametricDramDirectoryMSI
         elem_t elem_4KB;
         elem_4KB.valid = 1;
         elem_4KB.value = address >> 15; // We can assume 8 PTE entries/hash set
-        std::vector<elem_t> accessedAddresses_4KB = find_elastic_ptw(&elem_4KB, &elasticCuckooHT_4KB);
+        std::vector<elem_t> accessedAddresses_4KB;
+        if (page_size == 12)
+            accessedAddresses_4KB = find_elastic_ptw(&elem_4KB, &elasticCuckooHT_4KB);
 
         elem_t elem_2MB;
         elem_2MB.valid = 1;
         elem_2MB.value = address >> 24; // We can assume 8 PTE entries/hash set
-        std::vector<elem_t> accessedAddresses_2MB = find_elastic_ptw(&elem_2MB, &elasticCuckooHT_2MB);
+        std::vector<elem_t> accessedAddresses_2MB;
+        if (page_size == 21)
+            find_elastic_ptw(&elem_2MB, &elasticCuckooHT_2MB);
 
 		bool found = false;
 		bool found4KB = false;
 		bool found2MB = false;
-
-		for(elem_t elem: accessedAddresses_4KB) {
-			if(elem.valid)
-			{
-				found = true;
-				found4KB = true;
-				m_hits++;
-				break;
-			}
-		}
-
-		for(elem_t elem: accessedAddresses_2MB) {
-			if(elem.valid)
-			{
-				found = true;
-				found2MB = true;
-				m_hits++;
-				break;
-			}
-		}
+        if (page_size == 12) {
+            for(elem_t elem: accessedAddresses_4KB) {
+                if(elem.valid)
+                {
+                    found = true;
+                    found4KB = true;
+                    m_hits++;
+                    break;
+                }
+            }
+        }
+        if (page_size == 12) {
+            for(elem_t elem: accessedAddresses_2MB) {
+                if(elem.valid)
+                {
+                    found = true;
+                    found2MB = true;
+                    m_hits++;
+                    break;
+                }
+            }
+        }
 
 		if(!found) {
 			if(page_size == 21) {
@@ -178,14 +184,13 @@ namespace ParametricDramDirectoryMSI
                 // }
             }
         }
-	// 	if(found) {
-	// 		latency = final_latency;
-    //         return where_t::HIT;
-	// 	}
-	// 	else {
-	// 		latency = maxLat;
-    //         return where_t::MISS;
-	// 	}               
-    // }
+		if(found) {
+			// latency = final_latency;
+            return where_t::HIT;
+		}
+		else {
+			// latency = maxLat;
+            return where_t::MISS;
+		}               
     }
 }

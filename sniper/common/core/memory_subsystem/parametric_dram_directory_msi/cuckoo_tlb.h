@@ -56,7 +56,7 @@ namespace ParametricDramDirectoryMSI
 
         CUCKOO_TLB::where_t lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock, int page_size, CacheCntlr* l1dcache);
         ShmemPerfModel* getShmemPerfModel() { return m_shmem_perf_model; }
-        void allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t locksss);
+        void allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t locksss, int page_size);
         void setMemManager(ParametricDramDirectoryMSI::MemoryManager* _m_manager){ CUCKOO_TLB::m_manager = _m_manager;}
         void setCUCKOOPOTMDataStructure(int d, int num_entries){ 
             std::cout << "[VM] POTM: Setting up CUCKOO POTM data structure as L3 TLB with " << d << "cuckoo tables, and each table with" << num_entries << " entries" << std::endl;
