@@ -146,9 +146,10 @@ uint64_t rehash(elasticCuckooTable_t *hashtable, uint64_t swaps) {
 uint64_t evaluate_elasticity(elasticCuckooTable_t *hashtable,
                              uint8_t complete) {
   uint64_t retries = 0;
+  printf("occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
   if (hashtable->current->occupancy > hashtable->rehash_threshold &&
       !hashtable->rehashing) {
-    printf("occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
+    printf("Rehash! occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
     hashtable->rehashing = 1;
     hashtable->migrate = (cuckooTable_t *)malloc(sizeof(cuckooTable_t));
     create(hashtable->d, hashtable->curr_size * hashtable->scale,
@@ -459,6 +460,7 @@ std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtab
       selectTable = hashtable->current;
     }
     elem_t toAdd;
+    toAdd.valid = 0;
     // toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
     toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
     accessedAddresses.push_back(toAdd);
