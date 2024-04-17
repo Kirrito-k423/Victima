@@ -72,7 +72,7 @@ namespace ParametricDramDirectoryMSI
 
     }
 
-    CUCKOO_TLB::where_t CUCKOO_TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal, int page_size, CacheCntlr* l1dcache) {
+    CUCKOO_TLB::where_t CUCKOO_TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal, int page_size, CacheCntlr* l1dcache, ShmemPerfModel* shmem_perf_model) {
         IntPtr vpn = address >> page_size;
         if(model_count) m_access++;
         
@@ -129,67 +129,55 @@ namespace ParametricDramDirectoryMSI
         }
         SubsecondTime maxLat = SubsecondTime::Zero();
         SubsecondTime final_latency = SubsecondTime::Zero();
-        // now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-        SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-        if(found4KB || !found) {
-            for(elem_t addr: accessedAddresses_4KB) {  
-                IntPtr cache_address = addr.value & (~((64 - 1))); 		
-                CacheBlockInfo::block_type_t block_type = CacheBlockInfo::block_type_t::TLB_ENTRY;
-                l1dcache->processMemOpFromCore(
-                    0,
-                    lock_signal,
-                    Core::mem_op_t::READ,
-                    cache_address, 0,
-                    NULL, 64,
-                    true,
-                    true, block_type, SubsecondTime::Zero());
+        now = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+        SubsecondTime t_start = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+
+        if(page_size == 12) {
+            if(found4KB || !found) {
+                for(elem_t addr: accessedAddresses_4KB) {  
+                    IntPtr cache_address = addr.value & (~((64 - 1))); 		
+                    CacheBlockInfo::block_type_t block_type = CacheBlockInfo::block_type_t::TLB_ENTRY;
+                    l1dcache->processMemOpFromCore(
+                        0,
+                        lock_signal,
+                        Core::mem_op_t::READ,
+                        cache_address, 0,
+                        NULL, 64,
+                        true,
+                        true, block_type, SubsecondTime::Zero());
+                    SubsecondTime t_end = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+                    shmem_perf_model->setElapsedTime(ShmemPerfModel::_USER_THREAD, t_start);
+                    if((t_end - t_start) > maxLat) 
+                        maxLat = t_end - t_start;
+                }
             }
         }
-        SubsecondTime t_end = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-            // getShmemPerfModel()->setElapsedTime(ShmemPerfModel::_USER_THREAD , now);
-            
-            // ComponentLatency hash_latency = ComponentLatency(Sim()->getCoreManager()->getCoreFromID(m_core_id)->getDvfsDomain(),0); // Hash-function latency
-
-            // if(!found && ((t_end - t_start + hash_latency.getLatency()) > maxLat))
-            //     maxLat = (t_end - t_start) + hash_latency.getLatency();
-            
-            // if(found && addr.valid){
-            //     final_latency =  t_end - t_start + hash_latency.getLatency();
-            // }
-
-        if(found2MB || !found){
-            for(elem_t addr: accessedAddresses_2MB) {
-                SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-				IntPtr cache_address = addr.value & (~((64 - 1))); 		
-                CacheBlockInfo::block_type_t block_type =  CacheBlockInfo::block_type_t::TLB_ENTRY;
-
-                l1dcache->processMemOpFromCore(
-                    0,
-                    lock_signal,
-                    Core::mem_op_t::READ,
-                    cache_address, 0,
-                    NULL, 64,
-                    true,
-                    true, block_type, SubsecondTime::Zero());
-                    
-				SubsecondTime t_end = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-				// getShmemPerfModel()->setElapsedTime(ShmemPerfModel::_USER_THREAD , now);
-                
-                // ComponentLatency hash_latency = ComponentLatency(Sim()->getCoreManager()->getCoreFromID(m_core_id)->getDvfsDomain(),0); // Hash-function latency
-                
-                // if(!found && ((t_end - t_start + hash_latency.getLatency()) > maxLat))
-                //     maxLat = (t_end - t_start) + hash_latency.getLatency();
-                // if(found && addr.valid){
-                //     final_latency =  t_end - t_start + hash_latency.getLatency();
-                // }
+        if(page_size == 21) {
+            if(found2MB || !found){
+                for(elem_t addr: accessedAddresses_2MB) {
+                    IntPtr cache_address = addr.value & (~((64 - 1))); 		
+                    CacheBlockInfo::block_type_t block_type =  CacheBlockInfo::block_type_t::TLB_ENTRY;
+                    l1dcache->processMemOpFromCore(
+                        0,
+                        lock_signal,
+                        Core::mem_op_t::READ,
+                        cache_address, 0,
+                        NULL, 64,
+                        true,
+                        true, block_type, SubsecondTime::Zero());
+                    SubsecondTime t_end = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+                    shmem_perf_model->setElapsedTime(ShmemPerfModel::_USER_THREAD, t_start);
+                    if((t_end - t_start) > maxLat) 
+                        maxLat = t_end - t_start;
+                }
             }
         }
 		if(found) {
-			// latency = final_latency;
+			cuckoo_latency += maxLat;
             return where_t::HIT;
 		}
 		else {
-			// latency = maxLat;
+			cuckoo_latency += maxLat;
             return where_t::MISS;
 		}               
     }

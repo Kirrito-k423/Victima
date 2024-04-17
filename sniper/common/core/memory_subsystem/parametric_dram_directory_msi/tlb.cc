@@ -314,8 +314,10 @@ namespace ParametricDramDirectoryMSI
     else if (cuckoo_potm_enabled && !is_nested && level==2) {
       CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
       CUCKOO_TLB::where_t hit;
+      SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD); 
+      ShmemPerfModel* shmem_perf_model = getShmemPerfModel();  
       CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
-      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, page_size, l1dcache);
+      hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, page_size, l1dcache, shmem_perf_model);
       if (hit == CUCKOO_TLB::where_t::HIT)
         return TLB::CUCKOO_POTM;
     }
@@ -336,7 +338,7 @@ namespace ParametricDramDirectoryMSI
       SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);    
       CacheBlockInfo::block_type_t block_type =  CacheBlockInfo::block_type_t::TLB_ENTRY;
             
-      IntPtr cache_address_small_page =(tlb_address_4KB) & (~((64 - 1))); 
+      IntPtr cache_address_small_page = (tlb_address_4KB) & (~((64 - 1))); 
 
       //When we search inside the POTM, we bring the software structure inside the cache hierarchy
       l1dcache->processMemOpFromCore(
