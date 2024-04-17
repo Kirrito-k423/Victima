@@ -62,12 +62,12 @@ namespace ParametricDramDirectoryMSI
 
         if(page_size == 21) {
             insert_elastic(&elem_2MB,&elasticCuckooHT_2MB, 0, 0);
-            evaluate_elasticity(&elasticCuckooHT_2MB, 0);
+            // evaluate_elasticity(&elasticCuckooHT_2MB, 0);
         }
 
         else {
             insert_elastic(&elem_4KB,&elasticCuckooHT_4KB, 0, 0);
-            evaluate_elasticity(&elasticCuckooHT_4KB, 0);
+            // evaluate_elasticity(&elasticCuckooHT_4KB, 0);
         }
 
     }
@@ -119,11 +119,11 @@ namespace ParametricDramDirectoryMSI
 		if(!found) {
 			if(page_size == 21) {
                 insert_elastic(&elem_2MB, &elasticCuckooHT_2MB, 0, 0);
-                evaluate_elasticity(&elasticCuckooHT_2MB,0);
+                // evaluate_elasticity(&elasticCuckooHT_2MB,0);
 			}
             else {
                 insert_elastic(&elem_4KB, &elasticCuckooHT_4KB, 0, 0);
-                evaluate_elasticity(&elasticCuckooHT_4KB, 0);
+                // evaluate_elasticity(&elasticCuckooHT_4KB, 0);
             }
             m_miss++;
         }

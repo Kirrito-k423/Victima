@@ -146,7 +146,7 @@ uint64_t rehash(elasticCuckooTable_t *hashtable, uint64_t swaps) {
 uint64_t evaluate_elasticity(elasticCuckooTable_t *hashtable,
                              uint8_t complete) {
   uint64_t retries = 0;
-  printf("occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
+  // printf("occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
   if (hashtable->current->occupancy > hashtable->rehash_threshold &&
       !hashtable->rehashing) {
     printf("Rehash! occupancy = %f; rehash_threshold = %f\n", hashtable->current->occupancy, hashtable->rehash_threshold);
