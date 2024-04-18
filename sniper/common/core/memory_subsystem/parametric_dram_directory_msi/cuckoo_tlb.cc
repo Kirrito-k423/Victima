@@ -42,7 +42,7 @@ namespace ParametricDramDirectoryMSI
 
         }
 
-    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t lock_signal, int page_size) { // allocate POM TLB entry in cuckoo tables
+    void CUCKOO_TLB::allocate(IntPtr address, SubsecondTime now, Core::lock_signal_t lock_signal, int page_size, CacheCntlr* l1dcache, ShmemPerfModel* shmem_perf_model) { // allocate POM TLB entry in cuckoo tables
         // int page_size = ptw->init_walk_functional(address);
         IntPtr vpn = address >> page_size;
         m_eviction++;
@@ -57,19 +57,55 @@ namespace ParametricDramDirectoryMSI
 
 
         SubsecondTime maxLat = SubsecondTime::Zero();
-        SubsecondTime final_latency = SubsecondTime::Zero();
-        now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+        SubsecondTime t_start = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+        std::vector<elem_t> accessedAddresses_4KB;
+        std::vector<elem_t> accessedAddresses_2MB;
 
-        if(page_size == 21) {
-            insert_elastic(&elem_2MB,&elasticCuckooHT_2MB, 0, 0);
+        if(page_size == 12) {
+            insert_elastic_cuckoo_potm(&elem_2MB, &elasticCuckooHT_2MB, 0, 0, accessedAddresses_4KB);
             // evaluate_elasticity(&elasticCuckooHT_2MB, 0);
         }
-
         else {
-            insert_elastic(&elem_4KB,&elasticCuckooHT_4KB, 0, 0);
+            insert_elastic_cuckoo_potm(&elem_4KB, &elasticCuckooHT_4KB, 0, 0, accessedAddresses_2MB);
             // evaluate_elasticity(&elasticCuckooHT_4KB, 0);
         }
-
+        if(page_size == 12) {         
+            for(elem_t addr: accessedAddresses_4KB) {  
+                IntPtr cache_address = addr.value & (~((64 - 1))); 		
+                CacheBlockInfo::block_type_t block_type = CacheBlockInfo::block_type_t::TLB_ENTRY;
+                l1dcache->processMemOpFromCore(
+                    0,
+                    lock_signal,
+                    Core::mem_op_t::READ,
+                    cache_address, 0,
+                    NULL, 64,
+                    true,
+                    true, block_type, SubsecondTime::Zero());
+                SubsecondTime t_end = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+                shmem_perf_model->setElapsedTime(ShmemPerfModel::_USER_THREAD, t_start);
+                if((t_end - t_start) > maxLat) 
+                    maxLat = t_end - t_start;
+            }            
+        }
+        if(page_size == 21) {
+            for(elem_t addr: accessedAddresses_2MB) {
+                IntPtr cache_address = addr.value & (~((64 - 1))); 		
+                CacheBlockInfo::block_type_t block_type =  CacheBlockInfo::block_type_t::TLB_ENTRY;
+                l1dcache->processMemOpFromCore(
+                    0,
+                    lock_signal,
+                    Core::mem_op_t::READ,
+                    cache_address, 0,
+                    NULL, 64,
+                    true,
+                    true, block_type, SubsecondTime::Zero());
+                SubsecondTime t_end = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+                shmem_perf_model->setElapsedTime(ShmemPerfModel::_USER_THREAD, t_start);
+                if((t_end - t_start) > maxLat) 
+                    maxLat = t_end - t_start;
+            }
+        }
+        cuckoo_latency += maxLat;
     }
 
     CUCKOO_TLB::where_t CUCKOO_TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal, int page_size, CacheCntlr* l1dcache, ShmemPerfModel* shmem_perf_model) {
@@ -104,7 +140,7 @@ namespace ParametricDramDirectoryMSI
                 }
             }
         }
-        if (page_size == 12) {
+        if (page_size == 21) {
             for(elem_t elem: accessedAddresses_2MB) {
                 if(elem.valid)
                 {
@@ -117,19 +153,17 @@ namespace ParametricDramDirectoryMSI
         }
 
 		if(!found) {
-			if(page_size == 21) {
-                insert_elastic(&elem_2MB, &elasticCuckooHT_2MB, 0, 0);
-                // evaluate_elasticity(&elasticCuckooHT_2MB,0);
+			if(page_size == 12) {
+                insert_elastic(&elem_4KB, &elasticCuckooHT_4KB, 0, 0);
+                // evaluate_elasticity(&elasticCuckooHT_4KB,0);
 			}
             else {
-                insert_elastic(&elem_4KB, &elasticCuckooHT_4KB, 0, 0);
-                // evaluate_elasticity(&elasticCuckooHT_4KB, 0);
+                insert_elastic(&elem_2MB, &elasticCuckooHT_2MB, 0, 0);
+                // evaluate_elasticity(&elasticCuckooHT_2MB, 0);
             }
             m_miss++;
         }
         SubsecondTime maxLat = SubsecondTime::Zero();
-        SubsecondTime final_latency = SubsecondTime::Zero();
-        now = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
         SubsecondTime t_start = shmem_perf_model->getElapsedTime(ShmemPerfModel::_USER_THREAD);
 
         if(page_size == 12) {

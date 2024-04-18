@@ -297,6 +297,66 @@ uint32_t insert(elem_t *elem, cuckooTable_t *hashtable) {
   return tries + 1;
 }
 
+uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable,
+                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses) {
+  uint32_t tries = 0, current_inserts = 0, migrate_inserts = 0;
+  uint16_t nest = 0, new_nest = 0;
+  uint64_t hash = 0;
+  elem_t old;
+  cuckooTable_t *selectTable;
+  if (bias) {
+    nest = bias_nest;
+  } else {
+    _rdrand16_step(&nest);
+    nest = nest % hashtable->current->d;
+  }
+  for (tries = 0; tries < MAX_RETRIES; tries++) {
+    hash = gen_hash(elem, hashtable->current, nest);
+    if (hashtable->rehashing && hash < hashtable->current->rehashed[nest]) {
+      hash = gen_hash(elem, hashtable->migrate, nest);
+      selectTable = hashtable->migrate;
+      migrate_inserts++;
+    } else {
+      selectTable = hashtable->current;
+      current_inserts++;
+    }
+    old.valid = 0;
+    if (selectTable->hashtable[nest][hash].valid == 1) {
+      old.valid = selectTable->hashtable[nest][hash].valid;
+      old.value = selectTable->hashtable[nest][hash].value;
+      selectTable->num_elems[nest]--;
+    }
+
+    elem_t toAdd;
+    toAdd.valid = 1;
+    toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
+    accessedAddresses.push_back(toAdd);
+
+    selectTable->hashtable[nest][hash].valid = 1;
+    selectTable->hashtable[nest][hash].value = elem->value;
+    selectTable->num_elems[nest]++;
+    if (old.valid) {
+      elem->value = old.value;
+      elem->valid = 1;
+      do {
+        _rdrand16_step(&new_nest);
+        new_nest = new_nest % selectTable->d;
+      } while (new_nest == nest);
+      nest = new_nest;
+    }
+    else {
+      break;
+    }
+  }
+  if (migrate_inserts) {
+    update_occupancy(hashtable->migrate);
+  }
+  if (current_inserts) {
+    update_occupancy(hashtable->current);
+  }
+  return tries + 1;
+}
+
 uint32_t insert_elastic(elem_t *elem, elasticCuckooTable_t *hashtable,
                         uint8_t bias, uint16_t bias_nest) {
   uint32_t tries = 0, current_inserts = 0, migrate_inserts = 0;

@@ -125,6 +125,8 @@ std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtab
 */
 uint32_t insert(elem_t *elem, cuckooTable_t *hashtable);
 
+uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable,
+                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses);
 /*
 * insert_elastic try to insert an element in the elastic cuckoo hashtable
 * @elem element to insert

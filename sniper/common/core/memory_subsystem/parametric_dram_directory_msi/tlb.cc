@@ -314,7 +314,6 @@ namespace ParametricDramDirectoryMSI
     else if (cuckoo_potm_enabled && !is_nested && level==2) {
       CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
       CUCKOO_TLB::where_t hit;
-      SubsecondTime t_start = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD); 
       ShmemPerfModel* shmem_perf_model = getShmemPerfModel();  
       CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
       hit = cuckoo_potm->lookup(address, now, false , 3, model_count, lock_signal, page_size, l1dcache, shmem_perf_model);
@@ -575,7 +574,9 @@ namespace ParametricDramDirectoryMSI
           int page_size_evicted = evict_block_info.getPageSize();
           IntPtr evict_addr_vpn = evict_addr >> page_size_evicted;
           CUCKOO_TLB* cuckoo_potm = m_manager->getCUCKOO_POTM();
-          cuckoo_potm->allocate(evict_addr, now, lock_signal, page_size_evicted); 
+          ShmemPerfModel* shmem_perf_model = getShmemPerfModel();  
+          CacheCntlr* l1dcache = m_manager->getCacheCntlrAt(m_core_id,MemComponent::component_t::L1_DCACHE);
+          cuckoo_potm->allocate(evict_addr, now, lock_signal, page_size_evicted, l1dcache, shmem_perf_model); 
       }
 
       //If POTM is enabled and we have an L2 TLB eviction, allocate the evicted translation in the POTM but dont do this for nested TLB
