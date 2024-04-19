@@ -298,7 +298,8 @@ uint32_t insert(elem_t *elem, cuckooTable_t *hashtable) {
 }
 
 uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable,
-                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses) {
+                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses,
+                        mem_info m_mem_info) {
   uint32_t tries = 0, current_inserts = 0, migrate_inserts = 0;
   uint16_t nest = 0, new_nest = 0;
   uint64_t hash = 0;
@@ -329,7 +330,10 @@ uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtabl
 
     elem_t toAdd;
     toAdd.valid = 1;
-    toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
+    if (m_mem_info.page_table_placement == 0)
+      toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_channel, m_mem_info.channel_offset, m_mem_info.num_channel);
+    if (m_mem_info.page_table_placement == 1)
+      toAdd.value = map_address_to_bank((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_bank, m_mem_info.dram_page_size, m_mem_info.num_bank, m_mem_info.channel_offset, m_mem_info.num_channel);
     accessedAddresses.push_back(toAdd);
 
     selectTable->hashtable[nest][hash].valid = 1;
@@ -486,8 +490,7 @@ std::vector<elem_t> find(elem_t *elem, cuckooTable_t *hashtable) {
     hash = gen_hash(elem, hashtable, nest);
     elem_t toAdd;
     toAdd.valid = 0;
-    // toAdd.value = (uint64_t)&hashtable->hashtable[nest][hash];
-    toAdd.value = map_address_to_channel((uint64_t)&hashtable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
+    toAdd.value = (uint64_t)&hashtable->hashtable[nest][hash];
     // VPN: 0x000100
 
     accessedAddresses.push_back(toAdd);
@@ -502,6 +505,35 @@ std::vector<elem_t> find(elem_t *elem, cuckooTable_t *hashtable) {
   return accessedAddresses;
 }
 
+std::vector<elem_t> find_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable, mem_info m_mem_info) {
+  uint32_t nest = 0;
+  uint64_t hash = 0;
+  cuckooTable_t *selectTable;
+  bool found = false;
+  std::vector<elem_t> accessedAddresses;  
+  for (nest = 0; nest < hashtable->current->d; nest++) {
+    hash = gen_hash(elem, hashtable->current, nest);
+    if (hashtable->rehashing && hash < hashtable->current->rehashed[nest]) {
+      hash = gen_hash(elem, hashtable->migrate, nest);
+      selectTable = hashtable->migrate;
+    } else {
+      selectTable = hashtable->current;
+    }
+    elem_t toAdd;
+    toAdd.valid = 0;
+    if (m_mem_info.page_table_placement == 0)
+      toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_channel, m_mem_info.channel_offset, m_mem_info.num_channel);
+    if (m_mem_info.page_table_placement == 1)
+      toAdd.value = map_address_to_bank((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_bank, m_mem_info.dram_page_size, m_mem_info.num_bank, m_mem_info.channel_offset, m_mem_info.num_channel);
+    accessedAddresses.push_back(toAdd);
+    if (selectTable->hashtable[nest][hash].valid == 1 &&
+        selectTable->hashtable[nest][hash].value == elem->value) {
+      found = true;
+      accessedAddresses.back().valid = 1;
+    }
+  }
+  return accessedAddresses;
+}
 
 std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtable) {
   uint32_t nest = 0;
@@ -521,13 +553,12 @@ std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtab
     }
     elem_t toAdd;
     toAdd.valid = 0;
-    // toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
-    toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest % NUM_CHANNEL, CHANNEL_OFFSET, NUM_CHANNEL);
+    toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
     accessedAddresses.push_back(toAdd);
     if (selectTable->hashtable[nest][hash].valid == 1 &&
         selectTable->hashtable[nest][hash].value == elem->value) {
       found = true;
-      //printf("Found element in cuckoo \n");
+      // printf("Found element in cuckoo \n");
       accessedAddresses.back().valid = 1;
     }
   }

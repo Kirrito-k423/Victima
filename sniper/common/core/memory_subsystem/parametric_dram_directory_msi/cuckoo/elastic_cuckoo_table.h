@@ -21,6 +21,14 @@
 #define hsize(n) ((uint64_t)1 << (n))
 #define hmask(n) (hsize(n) - 1)
 
+struct mem_info
+{
+    int num_bank;
+    int dram_page_size;
+    int num_channel;
+    int channel_offset;
+    int page_table_placement;
+};
 typedef struct elem_t {
   uint8_t valid;
   uint64_t value;
@@ -117,6 +125,8 @@ void destroy_elastic(elasticCuckooTable_t *hashtable);
 uint32_t insert_recursion(elem_t *elem, cuckooTable_t *hashtable, uint32_t nest,
                           uint32_t tries);
 
+std::vector<elem_t> find_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable, mem_info m_mem_info);
+
 std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtable);
 /*
 * insert try to insert an element in the cuckoo hashtable
@@ -126,7 +136,8 @@ std::vector<elem_t> find_elastic_ptw(elem_t *elem, elasticCuckooTable_t *hashtab
 uint32_t insert(elem_t *elem, cuckooTable_t *hashtable);
 
 uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtable,
-                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses);
+                        uint8_t bias, uint16_t bias_nest, std::vector<elem_t> &accessedAddresses,
+                        mem_info m_mem_info);
 /*
 * insert_elastic try to insert an element in the elastic cuckoo hashtable
 * @elem element to insert

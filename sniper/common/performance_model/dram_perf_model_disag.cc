@@ -212,7 +212,6 @@ DramPerfModelDisagg::parseDeviceAddress(IntPtr address, UInt32 &channel, UInt32 
    /*address_bits = */parseAddressBits(address_bits, channel, m_channel_offset, m_num_channels, m_channel_offset < m_home_lookup_bit ? address : linearAddress);
    address_bits = parseAddressBits(address_bits, rank,    m_rank_offset,    m_num_ranks,    m_rank_offset < m_home_lookup_bit ? address : linearAddress);
 
-
    if (m_open_page_mapping)
    {
       // Open-page mapping: column address is bottom bits, then bank, then page
@@ -229,7 +228,7 @@ DramPerfModelDisagg::parseDeviceAddress(IntPtr address, UInt32 &channel, UInt32 
          address_bits = address_bits >> (m_num_banks_log2 + m_column_offset);
       }
       else
-      {
+      { 
          column = address_bits % m_dram_page_size; address_bits /= m_dram_page_size;
          bank_group = address_bits % m_num_bank_groups;
          bank = address_bits % m_num_banks; address_bits /= m_num_banks;
@@ -539,7 +538,6 @@ DramPerfModelDisagg::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, c
    UInt32 channel, rank, bank_group, bank, column;
    UInt64 page;
    parseDeviceAddress(address, channel, rank, bank_group, bank, column, page);
-
 	
 
    SubsecondTime t_now = pkt_time;

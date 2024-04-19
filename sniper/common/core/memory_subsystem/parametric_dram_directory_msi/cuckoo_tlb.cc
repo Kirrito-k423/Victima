@@ -20,17 +20,31 @@ namespace ParametricDramDirectoryMSI
         uint8_t swaps, // Number of elements to be rehashed
         uint8_t priority, // Bias a hashtable during insertion
         // Cuckoo hash related end
-        int* page_size_list, int page_sizes, PageTableWalker* _ptw)
+        int* page_size_list, int page_sizes,
+        String page_table_placement,
+        PageTableWalker* _ptw)
         : m_core_id(core_id)
         , m_shmem_perf_model(_m_shmem_perf_model)
         {
-            std::cout << "Instantiating Cuckoo Software-managed TLB" << std::endl;
-            create_elastic(d, size, &elasticCuckooHT_4KB, hash_func, rehash_threshold, scale, swaps, priority); //4KB cuckoo
-		    create_elastic(d, size, &elasticCuckooHT_2MB, hash_func, rehash_threshold, scale, swaps, priority); 
- 
             cuckoo_latency = SubsecondTime::Zero();
             m_hits = m_miss = m_access = m_eviction = 0;
-            
+            if (page_table_placement == "across_channels") {
+                m_page_table_placement = page_table_placement_t::ACROSS_CAHNNELS;
+            }
+            else if (page_table_placement == "across_banks") {
+                m_page_table_placement = page_table_placement_t::ACROSS_BANKS;
+            }
+
+            m_mem_info.dram_page_size = Sim()->getCfg()->getInt("perf_model/dram/ddr/dram_page_size");
+            m_mem_info.channel_offset = Sim()->getCfg()->getInt("perf_model/dram/ddr/channel_offset");
+            m_mem_info.num_bank = Sim()->getCfg()->getInt("perf_model/dram/ddr/num_banks");
+            m_mem_info.num_channel = Sim()->getCfg()->getInt("perf_model/dram/ddr/num_channels");
+            m_mem_info.page_table_placement = m_page_table_placement;
+
+            std::cout << "Instantiating Cuckoo Software-managed TLB " << page_table_placement << std::endl;
+            create_elastic(d, size, &elasticCuckooHT_4KB, hash_func, rehash_threshold, scale, swaps, priority); //4KB cuckoo
+            create_elastic(d, size, &elasticCuckooHT_2MB, hash_func, rehash_threshold, scale, swaps, priority); 
+        
             registerStatsMetric(name, core_id, "hits", &m_hits);
             registerStatsMetric(name, core_id, "miss", &m_miss);
             registerStatsMetric(name, core_id, "latency", &cuckoo_latency);
@@ -62,11 +76,11 @@ namespace ParametricDramDirectoryMSI
         std::vector<elem_t> accessedAddresses_2MB;
 
         if(page_size == 12) {
-            insert_elastic_cuckoo_potm(&elem_2MB, &elasticCuckooHT_2MB, 0, 0, accessedAddresses_4KB);
+            insert_elastic_cuckoo_potm(&elem_2MB, &elasticCuckooHT_2MB, 0, 0, accessedAddresses_4KB, m_mem_info);
             // evaluate_elasticity(&elasticCuckooHT_2MB, 0);
         }
         else {
-            insert_elastic_cuckoo_potm(&elem_4KB, &elasticCuckooHT_4KB, 0, 0, accessedAddresses_2MB);
+            insert_elastic_cuckoo_potm(&elem_4KB, &elasticCuckooHT_4KB, 0, 0, accessedAddresses_2MB, m_mem_info);
             // evaluate_elasticity(&elasticCuckooHT_4KB, 0);
         }
         if(page_size == 12) {         
@@ -117,14 +131,14 @@ namespace ParametricDramDirectoryMSI
         elem_4KB.value = address >> 15; // We can assume 8 PTE entries/hash set
         std::vector<elem_t> accessedAddresses_4KB;
         if (page_size == 12)
-            accessedAddresses_4KB = find_elastic_ptw(&elem_4KB, &elasticCuckooHT_4KB);
+            accessedAddresses_4KB = find_elastic_cuckoo_potm(&elem_4KB, &elasticCuckooHT_4KB, m_mem_info);
 
         elem_t elem_2MB;
         elem_2MB.valid = 1;
         elem_2MB.value = address >> 24; // We can assume 8 PTE entries/hash set
         std::vector<elem_t> accessedAddresses_2MB;
         if (page_size == 21)
-            find_elastic_ptw(&elem_2MB, &elasticCuckooHT_2MB);
+            accessedAddresses_2MB = find_elastic_cuckoo_potm(&elem_2MB, &elasticCuckooHT_2MB, m_mem_info);
 
 		bool found = false;
 		bool found4KB = false;
