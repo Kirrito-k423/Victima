@@ -330,10 +330,12 @@ uint32_t insert_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t *hashtabl
 
     elem_t toAdd;
     toAdd.valid = 1;
-    if (m_mem_info.page_table_placement == 0)
+    if (m_mem_info.tlb_placement == 0)
       toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_channel, m_mem_info.channel_offset, m_mem_info.num_channel);
-    if (m_mem_info.page_table_placement == 1)
+    if (m_mem_info.tlb_placement == 1)
       toAdd.value = map_address_to_bank((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_bank, m_mem_info.dram_page_size, m_mem_info.num_bank, m_mem_info.channel_offset, m_mem_info.num_channel);
+    if (m_mem_info.tlb_placement == 2)
+      toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
     accessedAddresses.push_back(toAdd);
 
     selectTable->hashtable[nest][hash].valid = 1;
@@ -521,10 +523,12 @@ std::vector<elem_t> find_elastic_cuckoo_potm(elem_t *elem, elasticCuckooTable_t 
     }
     elem_t toAdd;
     toAdd.valid = 0;
-    if (m_mem_info.page_table_placement == 0)
+    if (m_mem_info.tlb_placement == 0)
       toAdd.value = map_address_to_channel((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_channel, m_mem_info.channel_offset, m_mem_info.num_channel);
-    if (m_mem_info.page_table_placement == 1)
+    if (m_mem_info.tlb_placement == 1)
       toAdd.value = map_address_to_bank((uint64_t)&selectTable->hashtable[nest][hash], nest%m_mem_info.num_bank, m_mem_info.dram_page_size, m_mem_info.num_bank, m_mem_info.channel_offset, m_mem_info.num_channel);
+    if (m_mem_info.tlb_placement == 2)
+      toAdd.value = (uint64_t)&selectTable->hashtable[nest][hash];
     accessedAddresses.push_back(toAdd);
     if (selectTable->hashtable[nest][hash].valid == 1 &&
         selectTable->hashtable[nest][hash].value == elem->value) {

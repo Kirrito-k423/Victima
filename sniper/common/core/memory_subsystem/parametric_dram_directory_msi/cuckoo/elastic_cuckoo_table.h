@@ -27,7 +27,7 @@ struct mem_info
     int dram_page_size;
     int num_channel;
     int channel_offset;
-    int page_table_placement;
+    int tlb_placement;
 };
 typedef struct elem_t {
   uint8_t valid;

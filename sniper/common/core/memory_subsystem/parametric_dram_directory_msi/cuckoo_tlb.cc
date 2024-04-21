@@ -21,27 +21,31 @@ namespace ParametricDramDirectoryMSI
         uint8_t priority, // Bias a hashtable during insertion
         // Cuckoo hash related end
         int* page_size_list, int page_sizes,
-        String page_table_placement,
+        String tlb_placement,
         PageTableWalker* _ptw)
         : m_core_id(core_id)
         , m_shmem_perf_model(_m_shmem_perf_model)
         {
             cuckoo_latency = SubsecondTime::Zero();
             m_hits = m_miss = m_access = m_eviction = 0;
-            if (page_table_placement == "across_channels") {
-                m_page_table_placement = page_table_placement_t::ACROSS_CAHNNELS;
+            if (tlb_placement == "across_channels") {
+                m_tlb_placement = tlb_placement_t::ACROSS_CAHNNELS;
             }
-            else if (page_table_placement == "across_banks") {
-                m_page_table_placement = page_table_placement_t::ACROSS_BANKS;
+            else if (tlb_placement == "across_banks") {
+                m_tlb_placement = tlb_placement_t::ACROSS_BANKS;
             }
+            else if (tlb_placement == "normal") {
+                m_tlb_placement = tlb_placement_t::NORMAL;
+            }
+
 
             m_mem_info.dram_page_size = Sim()->getCfg()->getInt("perf_model/dram/ddr/dram_page_size");
             m_mem_info.channel_offset = Sim()->getCfg()->getInt("perf_model/dram/ddr/channel_offset");
             m_mem_info.num_bank = Sim()->getCfg()->getInt("perf_model/dram/ddr/num_banks");
             m_mem_info.num_channel = Sim()->getCfg()->getInt("perf_model/dram/ddr/num_channels");
-            m_mem_info.page_table_placement = m_page_table_placement;
+            m_mem_info.tlb_placement = m_tlb_placement;
 
-            std::cout << "Instantiating Cuckoo Software-managed TLB " << page_table_placement << std::endl;
+            std::cout << "Instantiating Cuckoo Software-managed TLB " << tlb_placement << std::endl;
             create_elastic(d, size, &elasticCuckooHT_4KB, hash_func, rehash_threshold, scale, swaps, priority); //4KB cuckoo
             create_elastic(d, size, &elasticCuckooHT_2MB, hash_func, rehash_threshold, scale, swaps, priority); 
         

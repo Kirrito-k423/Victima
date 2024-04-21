@@ -38,7 +38,7 @@ namespace ParametricDramDirectoryMSI
         // UInt64 cuckoo_hits;
         SubsecondTime cuckoo_latency;
         SubsecondTime current_lat;
-        int m_page_table_placement;
+        int m_tlb_placement;
         
         bool is_cuckoo_potm;
         PageTableWalker *ptw;
@@ -49,17 +49,18 @@ namespace ParametricDramDirectoryMSI
         IntPtr eip; 
 
     public:     
-        enum page_table_placement_t
+        enum tlb_placement_t
         {
             ACROSS_CAHNNELS,
-            ACROSS_BANKS
+            ACROSS_BANKS,
+            NORMAL
         };
         enum where_t
         {
             HIT = 0,
             MISS
         };
-        CUCKOO_TLB(String name, String cfgname, core_id_t core_id, ShmemPerfModel* m_shmem_perf_model, int d, char* hash_func, int size, float rehash_threshold, uint8_t scale, uint8_t swaps, uint8_t priority, int* page_size_list, int page_sizes, String page_table_placement, PageTableWalker* _ptw); 
+        CUCKOO_TLB(String name, String cfgname, core_id_t core_id, ShmemPerfModel* m_shmem_perf_model, int d, char* hash_func, int size, float rehash_threshold, uint8_t scale, uint8_t swaps, uint8_t priority, int* page_size_list, int page_sizes, String tlb_placement, PageTableWalker* _ptw); 
 
         CUCKOO_TLB::where_t lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock, int page_size, CacheCntlr* l1dcache, ShmemPerfModel* shmem_perf_model);
         ShmemPerfModel* getShmemPerfModel() { return m_shmem_perf_model; }
