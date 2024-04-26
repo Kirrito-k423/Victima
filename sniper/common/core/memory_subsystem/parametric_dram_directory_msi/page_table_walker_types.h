@@ -17,11 +17,14 @@ struct ptw_table_entry {
     struct ptw_table* next_level_table;
 };
 struct ptw_table{
+    int id;
+    int level;
+    int occupancy;
     struct ptw_table_entry* entries;
     int table_size;
 };
 
-ptw_table* InitiateTablePtw(int size);
-ptw_table_entry* CreateNewPtwEntryAtLevel(int level,int number_of_levels,int *level_indices,int *level_percentages,PageTableWalker *ptw, IntPtr address);
+ptw_table* InitiateTablePtw(int size, int level, uint64_t current_L2_id);
+ptw_table_entry* CreateNewPtwEntryAtLevel(int level,int number_of_levels,int *level_indices,int *level_percentages,PageTableWalker *ptw, IntPtr address, uint64_t current_L2_id);
 
 #endif 

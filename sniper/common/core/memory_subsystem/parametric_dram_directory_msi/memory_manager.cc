@@ -808,9 +808,9 @@ MemoryManager::~MemoryManager()
 {
    
    UInt32 i;
-
+   
    getNetwork()->unregisterCallback(SHARED_MEM_1);
-
+   printPagetableOccupancyAtLevel(1);
    // Delete the Models
 
    if (m_itlb) delete m_itlb;
@@ -1563,4 +1563,36 @@ MemoryManager::measureNucaStats()
 }
 
 }
-  
+void MemoryManager::printPagetableOccupancyAtLevel(int level) {
+   PageTableWalkerRadix* ptw_radix = dynamic_cast<PageTableWalkerRadix*>(ptw);
+   if (ptw_radix != nullptr) {
+      std::vector<ptw_table*> queue;
+      queue.push_back(ptw_radix->starting_table);
+
+      int level_count[4] = {0}; 
+      int level_total[4] = {0};
+      while (!queue.empty()) {
+         ptw_table* current_table = queue.front();
+         queue.erase(queue.begin());
+         int current_level = current_table->level;
+         level_count[current_level] += current_table->occupancy;
+         level_total[current_level] += current_table->table_size;
+
+         for (int i = 0; i < current_table->table_size; ++i) {
+            if (current_table->entries[i].entry_type == PTW_TABLE_POINTER && current_table->entries[i].next_level_table != nullptr) {
+               queue.push_back(current_table->entries[i].next_level_table);
+            }
+         }
+      }
+
+   for (int i = 0; i < 4; ++i) {
+      if (level_total[i] > 0) {
+         std::cout << "Level " << i + 1 << " occupancy rate: "
+                     << static_cast<double>(level_count[i]) / level_total[i] * 100.0
+                     << "%" << std::endl;
+      }
+   }
+   } else {
+      std::cerr << "Error: ptw is not an instance of PageTableWalkerRadix" << std::endl;
+}
+}

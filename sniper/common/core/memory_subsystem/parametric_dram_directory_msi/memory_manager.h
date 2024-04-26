@@ -23,6 +23,7 @@
 #include "utopia_cache_template.h"
 #include "modrian_memory.h"
 #include "pagetable_walker_xmem.h"
+#include "pagetable_walker_radix.h"
 #include "contention_model.h"
 #include "va_area_reader.h"
 
@@ -250,6 +251,7 @@ namespace ParametricDramDirectoryMSI
          void setCacheCntlrAt(core_id_t core_id, MemComponent::component_t mem_component, CacheCntlr* cache_cntlr) { m_all_cache_cntlrs[CoreComponentType(core_id, mem_component)] = cache_cntlr; }
          NucaCache* getNucaCache(){ return m_nuca_cache; }
          void measureNucaStats();
+         void printPagetableOccupancyAtLevel(int level);
 
          HitWhere::where_t coreInitiateMemoryAccess(
                IntPtr eip,

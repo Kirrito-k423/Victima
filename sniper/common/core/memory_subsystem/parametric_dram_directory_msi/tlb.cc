@@ -116,7 +116,6 @@ namespace ParametricDramDirectoryMSI
 
   TLB::where_t TLB::lookup(IntPtr address, SubsecondTime now, bool allocate_on_miss, int level, bool model_count, Core::lock_signal_t lock_signal)
   {
-
     // @kanellok UTOPIA related code segment
     if(ptw->isPageFault(address) && utopia_enabled && m_utopia->getHeurPrimary() ==  Utopia::utopia_heuristic::pf ){
 

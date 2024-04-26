@@ -30,6 +30,7 @@ namespace ParametricDramDirectoryMSI{
             CacheCntlr *cache;
             String name;
             PageTableWalkerRadix(int number_of_levels,Core* _core,ShmemPerfModel* _m_shmem_perf_model,int *level_bit_indices,int *level_percentages, PWC* pwc, bool pwc_enabled,UtopiaCache* shadow_cache);
+            uint64_t current_L2_id;
             ptw_table* starting_table;
             ShmemPerfModel* m_shmem_perf_model;
             SubsecondTime *latency_per_level;
