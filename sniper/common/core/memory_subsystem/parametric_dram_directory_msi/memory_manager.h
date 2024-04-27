@@ -198,6 +198,10 @@ namespace ParametricDramDirectoryMSI
          bool oracle_expressive_enabled;
          bool m_rlb_enabled;
 
+         UInt64 page_table_entry_total[4];
+         UInt64 page_table_entry_occupied_as_address[4];
+         UInt64 page_table_entry_occupied_as_next_level_table[4];
+
          //Address scaling 
          int scaling_factor;
 
