@@ -630,7 +630,11 @@ CacheCntlr::processMemOpFromCore(
       }
 
       MYLOG("processMemOpFromCore l%d before next", m_mem_component);
+      if(lastLevelCache()==this){
+         hit_where = processMemAccess(eip, this, mem_op_type, ca_address, modeled, count,block_type, Prefetch::NONE, t_start, false, mem_origin);
+      }else{
       hit_where = m_next_cache_cntlr->processShmemReqFromPrevCache(eip, this, mem_op_type, ca_address, modeled, count,block_type, Prefetch::NONE, t_start, false, mem_origin);
+      }
       bool next_cache_hit = hit_where != HitWhere::MISS;
       // if(hit_where != HitWhere::MISS && metadata_request &&  (metadata_passthrough_loc > 2))
       //    std::cout << "Metadata hit in L2 on address:" <<  ca_address << std::endl;
@@ -1289,6 +1293,32 @@ CacheCntlr::processShmemReqFromPrevCache(IntPtr eip, CacheCntlr* requester, Core
    }
    #else
    #endif
+
+   MYLOG("returning %s", HitWhereString(hit_where));
+   return hit_where;
+}
+
+HitWhere::where_t
+CacheCntlr::processMemAccess(IntPtr eip, CacheCntlr* requester, Core::mem_op_t mem_op_type, IntPtr address, bool modeled, bool count,CacheBlockInfo::block_type_t block_type, Prefetch::prefetch_type_t isPrefetch, SubsecondTime t_issue, bool have_write_lock, Core::mem_origin_t mem_origin)
+{
+   // skip cache count metrics
+   // skip cachehit condition
+   // Go2missHandler
+   // Increment shared mem perf model cycle counts
+   HitWhere::where_t hit_where = HitWhere::MISS;
+   if (modeled){
+      getMemoryManager()->incrElapsedTime(m_mem_component, CachePerfModel::ACCESS_CACHE_TAGS, ShmemPerfModel::_USER_THREAD);
+   }
+   if (m_master->m_dram_cntlr)
+   {
+      tIC();
+      // weird, LLC why not have no next m_dram_cntlr
+   }else
+   {
+      tIC(m_master->m_dram_cntlr);
+      initiateDirectoryAccess(mem_op_type, address, block_type,isPrefetch != Prefetch::NONE, t_issue);
+      tIC(m_master->m_dram_cntlr);
+   }
 
    MYLOG("returning %s", HitWhereString(hit_where));
    return hit_where;

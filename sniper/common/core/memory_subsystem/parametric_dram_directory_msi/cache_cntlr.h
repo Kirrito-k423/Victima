@@ -326,6 +326,9 @@ namespace ParametricDramDirectoryMSI
          // Handle Request from previous level cache
          HitWhere::where_t processShmemReqFromPrevCache(IntPtr eip, CacheCntlr* requester, Core::mem_op_t mem_op_type, IntPtr address, bool modeled, bool count,CacheBlockInfo::block_type_t block_type,  Prefetch::prefetch_type_t isPrefetch, SubsecondTime t_issue, bool have_write_lock, Core::mem_origin_t mem_origin);
 
+         // fix the case where only L1 cache is present and acts as the LLC (Last Level Cache)
+         HitWhere::where_t processMemAccess(IntPtr eip, CacheCntlr* requester, Core::mem_op_t mem_op_type, IntPtr address, bool modeled, bool count,CacheBlockInfo::block_type_t block_type, Prefetch::prefetch_type_t isPrefetch, SubsecondTime t_issue, bool have_write_lock, Core::mem_origin_t mem_origin);
+         
          // Process Request from L1 Cache
          boost::tuple<HitWhere::where_t, SubsecondTime> accessDRAM(Core::mem_op_t mem_op_type, IntPtr address, bool isPrefetch, Byte* data_buf,bool metadata_request);
          void initiateDirectoryAccess(Core::mem_op_t mem_op_type, IntPtr address, CacheBlockInfo::block_type_t block_type,bool isPrefetch, SubsecondTime t_issue);
