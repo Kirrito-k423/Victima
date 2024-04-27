@@ -6,6 +6,9 @@
 #include "logmem.h"
 #include "exceptions.h"
 #include "sim_api.h"
+#define BACKWARD_HAS_DW 1
+#include "backward.hpp"
+#include "icecream.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +26,7 @@ int main(int argc, char* argv[])
    if (ld_orig)
       setenv("LD_LIBRARY_PATH", ld_orig, 1);
 
-   registerExceptionHandler();
+   // registerExceptionHandler();
 
    string_vec args;
 
@@ -53,6 +56,7 @@ int main(int argc, char* argv[])
 
 
    LOG_ASSERT_ERROR(Sim()->getTraceManager(), "In standalone mode but there is no TraceManager!");
+   tIC();
    Sim()->getTraceManager()->run();
    // Iterate over a number of application runs. This can allow for a warmup pass before running an application
    for (int i = 1 ; i < Sim()->getCfg()->getInt("traceinput/num_runs") ; i++)
