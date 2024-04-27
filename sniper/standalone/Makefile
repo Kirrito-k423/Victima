@@ -1,7 +1,7 @@
 # this gives us default build rules and dependency handling
 SIM_ROOT ?= $(CURDIR)/..
 
-LD_LIBS += -lcarbon_sim -lpthread
+LD_LIBS += -lcarbon_sim -lpthread -ldw
 
 CLEAN=$(findstring clean,$(MAKECMDGOALS))
 
