@@ -147,6 +147,8 @@ namespace ParametricDramDirectoryMSI{
 
 						nuca->markTranslationMetadata(addr.value,CacheBlockInfo::block_type_t::PAGE_TABLE);
 						mem_manager->getCache(MemComponent::component_t::L1_DCACHE)->markMetadata(addr.value,CacheBlockInfo::block_type_t::PAGE_TABLE);
+						// skip if there is no L2 cache
+						if(!(cache->isFirstLevel() && cache->isLastLevel()))
             			mem_manager->getCache(MemComponent::component_t::L2_CACHE)->markMetadata(addr.value,CacheBlockInfo::block_type_t::PAGE_TABLE);
 					}
 
