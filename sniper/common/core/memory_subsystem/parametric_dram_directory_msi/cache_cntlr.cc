@@ -2592,6 +2592,7 @@ CacheCntlr::acquireLock(UInt64 address)
 MYLOG("cache lock acquire %u # %u @ %lx", m_mem_component, m_core_id, address);
    assert(isFirstLevel());
    // Lock this L1 cache for the set containing <address>.
+   if(isLLCShared())
    lastLevelCache()->m_master->getSetLock(address)->acquire_shared(m_core_id);
 }
 
@@ -2600,6 +2601,7 @@ CacheCntlr::releaseLock(UInt64 address)
 {
 MYLOG("cache lock release %u # %u @ %lx", m_mem_component, m_core_id, address);
    assert(isFirstLevel());
+   if(isLLCShared())
    lastLevelCache()->m_master->getSetLock(address)->release_shared(m_core_id);
 }
 
@@ -2608,6 +2610,7 @@ CacheCntlr::acquireStackLock(UInt64 address, bool this_is_locked)
 {
 MYLOG("stack lock acquire %u # %u @ %lx", m_mem_component, m_core_id, address);
    // Lock the complete stack for the set containing <address>
+   if(isLLCShared())
    if (this_is_locked)
       // If two threads decide to upgrade at the same time, we could deadlock.
       // Upgrade therefore internally releases the cache lock!
@@ -2620,6 +2623,7 @@ void
 CacheCntlr::releaseStackLock(UInt64 address, bool this_is_locked)
 {
 MYLOG("stack lock release %u # %u @ %lx", m_mem_component, m_core_id, address);
+   if(isLLCShared())
    if (this_is_locked)
       lastLevelCache()->m_master->getSetLock(address)->downgrade(m_core_id);
    else

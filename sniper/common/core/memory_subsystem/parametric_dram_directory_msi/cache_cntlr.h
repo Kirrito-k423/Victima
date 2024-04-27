@@ -421,6 +421,24 @@ namespace ParametricDramDirectoryMSI
          bool isMasterCache(void) { return m_core_id == m_core_id_master; }
          bool isFirstLevel(void) { return m_master->m_prev_cache_cntlrs.empty(); }
          bool isLastLevel(void) { return ! m_next_cache_cntlr; }
+         /**
+          * Determines if the Last-Level Cache (LLC) is shared.
+          * 
+          * Note: This implementation currently only handles the scenario where there is a single
+          * level of cache, which is both the first and last level. In this case, it assumes that
+          * the LLC is not shared because it is the only cache level.
+          * 
+          * TODO: Expand this function to handle multiple cache levels and properly determine
+          * if the LLC is shared in multi-level cache architectures.
+          * 
+          * @return bool - Returns true if the LLC is shared, false otherwise.
+          */
+         bool isLLCShared(void) {
+            // Returns false if it is both the first and the last level cache (i.e., only L1 cache exists),
+            // assuming it cannot be a shared LLC in this simplified scenario.
+            return !(isFirstLevel() && isLastLevel());
+         }
+
          bool isShared(core_id_t core_id); //< Return true if core shares this cache
 
          bool isInLowerLevelCache(CacheBlockInfo *block_info);

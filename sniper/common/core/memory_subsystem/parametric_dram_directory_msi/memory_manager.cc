@@ -764,7 +764,7 @@ MemoryManager::MemoryManager(Core* core,
             num_sets = 1;
          // FIXME: We really should check all cache levels
       }
-
+      if((UInt32)m_last_level_cache > MemComponent::L1_DCACHE)
       m_cache_cntlrs[(UInt32)m_last_level_cache]->createSetLocks(
          getCacheBlockSize(),
          num_sets,
