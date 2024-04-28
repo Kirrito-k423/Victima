@@ -62,7 +62,7 @@ namespace ParametricDramDirectoryMSI
    class MemoryManager : public MemoryManagerBase
    {
       private:
-         CacheCntlr* m_cache_cntlrs[MemComponent::LAST_LEVEL_CACHE + 1];
+         CacheCntlr* m_cache_cntlrs[MemComponent::LAST_LEVEL_CACHE + 1] = {nullptr};
          NucaCache* m_nuca_cache;
          DramCache* m_dram_cache;
          PrL1PrL2DramDirectoryMSI::DramDirectoryCntlr* m_dram_directory_cntlr;
